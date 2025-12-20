@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	domain "github.com/vbncursed/medialog/auth-service/internal/models"
 	"github.com/vbncursed/medialog/auth-service/internal/pb/models"
 	"github.com/vbncursed/medialog/auth-service/internal/services/authService"
 	"google.golang.org/grpc/codes"
@@ -13,7 +14,11 @@ import (
 func (a *AuthServiceAPI) Refresh(ctx context.Context, req *models.RefreshRequest) (*models.AuthResponse, error) {
 	ua, ip := clientMeta(ctx)
 
-	res, err := a.authService.Refresh(ctx, req.GetRefreshToken(), ua, ip)
+	res, err := a.authService.Refresh(ctx, domain.RefreshInput{
+		RefreshToken: req.GetRefreshToken(),
+		UserAgent:    ua,
+		IP:           ip,
+	})
 	if err != nil {
 		switch {
 		case errors.Is(err, authService.ErrInvalidArgument):

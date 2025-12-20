@@ -3,7 +3,7 @@ package bootstrap
 import (
 	"github.com/vbncursed/medialog/auth-service/config"
 	"github.com/vbncursed/medialog/auth-service/internal/services/authService"
-	"github.com/vbncursed/medialog/auth-service/internal/storage/pgstorage"
+	"github.com/vbncursed/medialog/auth-service/internal/storage/pgUserStorage"
 )
 
 func InitAuthService(storage *pgstorage.PGstorage, cfg *config.Config) *authService.AuthService {

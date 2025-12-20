@@ -9,7 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type rateLimiter interface {
+type RateLimiter interface {
 	Allow(ctx context.Context, key string) bool
 }
 
@@ -37,17 +37,28 @@ func newRedisRateLimiter(rdb *redis.Client, kind string, limitPerWindow int, win
 	}
 }
 
+func NewRedisRateLimiter(rdb *redis.Client, kind string, limitPerWindow int, window time.Duration) RateLimiter {
+	return newRedisRateLimiter(rdb, kind, limitPerWindow, window)
+}
+
 func (l *redisRateLimiter) Allow(ctx context.Context, key string) bool {
 	if l == nil || l.limit <= 0 {
 		return true
 	}
-	// Если Redis не инициализирован/недоступен — fail-open (не блокируем auth).
+	// Если Redis не инициализирован/недоступен — fail-closed (блокируем auth),
+	// потому что без RL нельзя безопасно принимать login/register.
 	if l.rdb == nil {
-		return true
+		return false
 	}
+
 	if ctx == nil {
-		ctx = context.Background()
+		return false
 	}
+	execCtx := context.WithoutCancel(ctx)
+
+	var cancel context.CancelFunc
+	execCtx, cancel = context.WithTimeout(execCtx, 200*time.Millisecond)
+	defer cancel()
 
 	redisKey := fmt.Sprintf("rl:%s:%s", l.kind, key)
 	ttlSeconds := int64(l.window.Seconds())
@@ -55,10 +66,10 @@ func (l *redisRateLimiter) Allow(ctx context.Context, key string) bool {
 		ttlSeconds = 60
 	}
 
-	n, err := incrExpireScript.Run(ctx, l.rdb, []string{redisKey}, ttlSeconds).Int64()
+	n, err := incrExpireScript.Run(execCtx, l.rdb, []string{redisKey}, ttlSeconds).Int64()
 	if err != nil {
-		slog.Warn("rate limit redis error (fail-open)", "err", err, "key", redisKey)
-		return true
+		slog.Warn("rate limit redis error (fail-closed)", "err", err, "key", redisKey)
+		return false
 	}
 
 	return n <= l.limit

@@ -8,6 +8,7 @@ import (
 	"context"
 
 	mock "github.com/stretchr/testify/mock"
+	"github.com/vbncursed/medialog/auth-service/internal/models"
 	"github.com/vbncursed/medialog/auth-service/internal/services/authService"
 )
 
@@ -39,8 +40,8 @@ func (_m *Service) EXPECT() *Service_Expecter {
 }
 
 // Login provides a mock function for the type Service
-func (_mock *Service) Login(ctx context.Context, email string, password string, userAgent string, ip string) (*authService.AuthResult, error) {
-	ret := _mock.Called(ctx, email, password, userAgent, ip)
+func (_mock *Service) Login(ctx context.Context, in models.LoginInput) (*authService.AuthResult, error) {
+	ret := _mock.Called(ctx, in)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Login")
@@ -48,18 +49,18 @@ func (_mock *Service) Login(ctx context.Context, email string, password string, 
 
 	var r0 *authService.AuthResult
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string, string) (*authService.AuthResult, error)); ok {
-		return returnFunc(ctx, email, password, userAgent, ip)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, models.LoginInput) (*authService.AuthResult, error)); ok {
+		return returnFunc(ctx, in)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string, string) *authService.AuthResult); ok {
-		r0 = returnFunc(ctx, email, password, userAgent, ip)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, models.LoginInput) *authService.AuthResult); ok {
+		r0 = returnFunc(ctx, in)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*authService.AuthResult)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, string, string) error); ok {
-		r1 = returnFunc(ctx, email, password, userAgent, ip)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, models.LoginInput) error); ok {
+		r1 = returnFunc(ctx, in)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -73,42 +74,24 @@ type Service_Login_Call struct {
 
 // Login is a helper method to define mock.On call
 //   - ctx context.Context
-//   - email string
-//   - password string
-//   - userAgent string
-//   - ip string
-func (_e *Service_Expecter) Login(ctx interface{}, email interface{}, password interface{}, userAgent interface{}, ip interface{}) *Service_Login_Call {
-	return &Service_Login_Call{Call: _e.mock.On("Login", ctx, email, password, userAgent, ip)}
+//   - in models.LoginInput
+func (_e *Service_Expecter) Login(ctx interface{}, in interface{}) *Service_Login_Call {
+	return &Service_Login_Call{Call: _e.mock.On("Login", ctx, in)}
 }
 
-func (_c *Service_Login_Call) Run(run func(ctx context.Context, email string, password string, userAgent string, ip string)) *Service_Login_Call {
+func (_c *Service_Login_Call) Run(run func(ctx context.Context, in models.LoginInput)) *Service_Login_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 string
+		var arg1 models.LoginInput
 		if args[1] != nil {
-			arg1 = args[1].(string)
-		}
-		var arg2 string
-		if args[2] != nil {
-			arg2 = args[2].(string)
-		}
-		var arg3 string
-		if args[3] != nil {
-			arg3 = args[3].(string)
-		}
-		var arg4 string
-		if args[4] != nil {
-			arg4 = args[4].(string)
+			arg1 = args[1].(models.LoginInput)
 		}
 		run(
 			arg0,
 			arg1,
-			arg2,
-			arg3,
-			arg4,
 		)
 	})
 	return _c
@@ -119,7 +102,7 @@ func (_c *Service_Login_Call) Return(authResult *authService.AuthResult, err err
 	return _c
 }
 
-func (_c *Service_Login_Call) RunAndReturn(run func(ctx context.Context, email string, password string, userAgent string, ip string) (*authService.AuthResult, error)) *Service_Login_Call {
+func (_c *Service_Login_Call) RunAndReturn(run func(ctx context.Context, in models.LoginInput) (*authService.AuthResult, error)) *Service_Login_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -239,8 +222,8 @@ func (_c *Service_LogoutAll_Call) RunAndReturn(run func(ctx context.Context, ref
 }
 
 // Refresh provides a mock function for the type Service
-func (_mock *Service) Refresh(ctx context.Context, refreshToken string, userAgent string, ip string) (*authService.AuthResult, error) {
-	ret := _mock.Called(ctx, refreshToken, userAgent, ip)
+func (_mock *Service) Refresh(ctx context.Context, in models.RefreshInput) (*authService.AuthResult, error) {
+	ret := _mock.Called(ctx, in)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Refresh")
@@ -248,18 +231,18 @@ func (_mock *Service) Refresh(ctx context.Context, refreshToken string, userAgen
 
 	var r0 *authService.AuthResult
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string) (*authService.AuthResult, error)); ok {
-		return returnFunc(ctx, refreshToken, userAgent, ip)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, models.RefreshInput) (*authService.AuthResult, error)); ok {
+		return returnFunc(ctx, in)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string) *authService.AuthResult); ok {
-		r0 = returnFunc(ctx, refreshToken, userAgent, ip)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, models.RefreshInput) *authService.AuthResult); ok {
+		r0 = returnFunc(ctx, in)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*authService.AuthResult)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, string) error); ok {
-		r1 = returnFunc(ctx, refreshToken, userAgent, ip)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, models.RefreshInput) error); ok {
+		r1 = returnFunc(ctx, in)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -273,36 +256,24 @@ type Service_Refresh_Call struct {
 
 // Refresh is a helper method to define mock.On call
 //   - ctx context.Context
-//   - refreshToken string
-//   - userAgent string
-//   - ip string
-func (_e *Service_Expecter) Refresh(ctx interface{}, refreshToken interface{}, userAgent interface{}, ip interface{}) *Service_Refresh_Call {
-	return &Service_Refresh_Call{Call: _e.mock.On("Refresh", ctx, refreshToken, userAgent, ip)}
+//   - in models.RefreshInput
+func (_e *Service_Expecter) Refresh(ctx interface{}, in interface{}) *Service_Refresh_Call {
+	return &Service_Refresh_Call{Call: _e.mock.On("Refresh", ctx, in)}
 }
 
-func (_c *Service_Refresh_Call) Run(run func(ctx context.Context, refreshToken string, userAgent string, ip string)) *Service_Refresh_Call {
+func (_c *Service_Refresh_Call) Run(run func(ctx context.Context, in models.RefreshInput)) *Service_Refresh_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 string
+		var arg1 models.RefreshInput
 		if args[1] != nil {
-			arg1 = args[1].(string)
-		}
-		var arg2 string
-		if args[2] != nil {
-			arg2 = args[2].(string)
-		}
-		var arg3 string
-		if args[3] != nil {
-			arg3 = args[3].(string)
+			arg1 = args[1].(models.RefreshInput)
 		}
 		run(
 			arg0,
 			arg1,
-			arg2,
-			arg3,
 		)
 	})
 	return _c
@@ -313,14 +284,14 @@ func (_c *Service_Refresh_Call) Return(authResult *authService.AuthResult, err e
 	return _c
 }
 
-func (_c *Service_Refresh_Call) RunAndReturn(run func(ctx context.Context, refreshToken string, userAgent string, ip string) (*authService.AuthResult, error)) *Service_Refresh_Call {
+func (_c *Service_Refresh_Call) RunAndReturn(run func(ctx context.Context, in models.RefreshInput) (*authService.AuthResult, error)) *Service_Refresh_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Register provides a mock function for the type Service
-func (_mock *Service) Register(ctx context.Context, email string, password string, userAgent string, ip string) (*authService.AuthResult, error) {
-	ret := _mock.Called(ctx, email, password, userAgent, ip)
+func (_mock *Service) Register(ctx context.Context, in models.RegisterInput) (*authService.AuthResult, error) {
+	ret := _mock.Called(ctx, in)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Register")
@@ -328,18 +299,18 @@ func (_mock *Service) Register(ctx context.Context, email string, password strin
 
 	var r0 *authService.AuthResult
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string, string) (*authService.AuthResult, error)); ok {
-		return returnFunc(ctx, email, password, userAgent, ip)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, models.RegisterInput) (*authService.AuthResult, error)); ok {
+		return returnFunc(ctx, in)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string, string) *authService.AuthResult); ok {
-		r0 = returnFunc(ctx, email, password, userAgent, ip)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, models.RegisterInput) *authService.AuthResult); ok {
+		r0 = returnFunc(ctx, in)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*authService.AuthResult)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, string, string) error); ok {
-		r1 = returnFunc(ctx, email, password, userAgent, ip)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, models.RegisterInput) error); ok {
+		r1 = returnFunc(ctx, in)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -353,42 +324,24 @@ type Service_Register_Call struct {
 
 // Register is a helper method to define mock.On call
 //   - ctx context.Context
-//   - email string
-//   - password string
-//   - userAgent string
-//   - ip string
-func (_e *Service_Expecter) Register(ctx interface{}, email interface{}, password interface{}, userAgent interface{}, ip interface{}) *Service_Register_Call {
-	return &Service_Register_Call{Call: _e.mock.On("Register", ctx, email, password, userAgent, ip)}
+//   - in models.RegisterInput
+func (_e *Service_Expecter) Register(ctx interface{}, in interface{}) *Service_Register_Call {
+	return &Service_Register_Call{Call: _e.mock.On("Register", ctx, in)}
 }
 
-func (_c *Service_Register_Call) Run(run func(ctx context.Context, email string, password string, userAgent string, ip string)) *Service_Register_Call {
+func (_c *Service_Register_Call) Run(run func(ctx context.Context, in models.RegisterInput)) *Service_Register_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 string
+		var arg1 models.RegisterInput
 		if args[1] != nil {
-			arg1 = args[1].(string)
-		}
-		var arg2 string
-		if args[2] != nil {
-			arg2 = args[2].(string)
-		}
-		var arg3 string
-		if args[3] != nil {
-			arg3 = args[3].(string)
-		}
-		var arg4 string
-		if args[4] != nil {
-			arg4 = args[4].(string)
+			arg1 = args[1].(models.RegisterInput)
 		}
 		run(
 			arg0,
 			arg1,
-			arg2,
-			arg3,
-			arg4,
 		)
 	})
 	return _c
@@ -399,7 +352,7 @@ func (_c *Service_Register_Call) Return(authResult *authService.AuthResult, err 
 	return _c
 }
 
-func (_c *Service_Register_Call) RunAndReturn(run func(ctx context.Context, email string, password string, userAgent string, ip string) (*authService.AuthResult, error)) *Service_Register_Call {
+func (_c *Service_Register_Call) RunAndReturn(run func(ctx context.Context, in models.RegisterInput) (*authService.AuthResult, error)) *Service_Register_Call {
 	_c.Call.Return(run)
 	return _c
 }

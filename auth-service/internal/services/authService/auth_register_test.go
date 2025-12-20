@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/vbncursed/medialog/auth-service/internal/models"
 	"github.com/stretchr/testify/require"
 )
 
@@ -12,7 +13,11 @@ func TestAuthService_Register_InvalidArgs(t *testing.T) {
 	st := newFakeStorage()
 	svc := NewAuthService(st, "secret", 60, 3600)
 
-	_, err := svc.Register(context.Background(), "bad", "short", "", "127.0.0.1")
+	_, err := svc.Register(context.Background(), models.RegisterInput{
+		Email:    "bad",
+		Password: "short",
+		IP:       "127.0.0.1",
+	})
 	require.ErrorIs(t, err, ErrInvalidArgument)
 }
 
@@ -28,7 +33,11 @@ func TestAuthService_Register_PasswordComplexity(t *testing.T) {
 	}
 
 	for _, pwd := range cases {
-		_, err := svc.Register(context.Background(), "a@b.com", pwd, "", "127.0.0.1")
+		_, err := svc.Register(context.Background(), models.RegisterInput{
+			Email:    "a@b.com",
+			Password: pwd,
+			IP:       "127.0.0.1",
+		})
 		require.ErrorIs(t, err, ErrInvalidArgument, "pwd=%q", pwd)
 	}
 }
@@ -38,7 +47,11 @@ func TestAuthService_Register_EmailExists(t *testing.T) {
 	_, _ = st.CreateUser(context.Background(), "a@b.com", "hash")
 
 	svc := NewAuthService(st, "secret", 60, 3600)
-	_, err := svc.Register(context.Background(), "a@b.com", "Password123", "", "127.0.0.1")
+	_, err := svc.Register(context.Background(), models.RegisterInput{
+		Email:    "a@b.com",
+		Password: "Password123",
+		IP:       "127.0.0.1",
+	})
 	require.ErrorIs(t, err, ErrEmailAlreadyExists)
 }
 
@@ -47,7 +60,11 @@ func TestAuthService_Register_StorageLookupError(t *testing.T) {
 	st.errGetUser = errors.New("boom")
 
 	svc := NewAuthService(st, "secret", 60, 3600)
-	_, err := svc.Register(context.Background(), "a@b.com", "Password123", "", "127.0.0.1")
+	_, err := svc.Register(context.Background(), models.RegisterInput{
+		Email:    "a@b.com",
+		Password: "Password123",
+		IP:       "127.0.0.1",
+	})
 	require.Error(t, err)
 }
 
@@ -56,7 +73,11 @@ func TestAuthService_Register_CreateUserErrorMappedToAlreadyExists(t *testing.T)
 	st.errCreateUser = errors.New("db down")
 
 	svc := NewAuthService(st, "secret", 60, 3600)
-	_, err := svc.Register(context.Background(), "a@b.com", "Password123", "", "127.0.0.1")
+	_, err := svc.Register(context.Background(), models.RegisterInput{
+		Email:    "a@b.com",
+		Password: "Password123",
+		IP:       "127.0.0.1",
+	})
 	require.ErrorIs(t, err, ErrEmailAlreadyExists)
 }
 
@@ -64,7 +85,12 @@ func TestAuthService_Register_Success(t *testing.T) {
 	st := newFakeStorage()
 	svc := NewAuthService(st, "secret", 60, 3600)
 
-	res, err := svc.Register(context.Background(), "a@b.com", "Password123", "ua", "127.0.0.1")
+	res, err := svc.Register(context.Background(), models.RegisterInput{
+		Email:     "a@b.com",
+		Password:  "Password123",
+		UserAgent: "ua",
+		IP:        "127.0.0.1",
+	})
 	require.NoError(t, err)
 	require.NotZero(t, res.UserID)
 	require.NotEmpty(t, res.AccessToken)
@@ -79,6 +105,10 @@ func TestAuthService_Register_HashPasswordError(t *testing.T) {
 	bcryptGenerate = func(_ []byte, _ int) ([]byte, error) { return nil, errors.New("bcrypt fail") }
 	t.Cleanup(func() { bcryptGenerate = old })
 
-	_, err := svc.Register(context.Background(), "a@b.com", "Password123", "", "127.0.0.1")
+	_, err := svc.Register(context.Background(), models.RegisterInput{
+		Email:    "a@b.com",
+		Password: "Password123",
+		IP:       "127.0.0.1",
+	})
 	require.Error(t, err)
 }

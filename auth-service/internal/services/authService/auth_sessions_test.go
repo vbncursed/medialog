@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/vbncursed/medialog/auth-service/internal/models"
 	"github.com/stretchr/testify/require"
 )
 
@@ -13,7 +14,10 @@ func TestAuthService_Refresh_InvalidArgs(t *testing.T) {
 	st := newFakeStorage()
 	svc := NewAuthService(st, "secret", 60, 3600)
 
-	_, err := svc.Refresh(context.Background(), "", "", "127.0.0.1")
+	_, err := svc.Refresh(context.Background(), models.RefreshInput{
+		RefreshToken: "",
+		IP:           "127.0.0.1",
+	})
 	require.ErrorIs(t, err, ErrInvalidArgument)
 }
 
@@ -21,7 +25,10 @@ func TestAuthService_Refresh_SessionNotFound(t *testing.T) {
 	st := newFakeStorage()
 	svc := NewAuthService(st, "secret", 60, 3600)
 
-	_, err := svc.Refresh(context.Background(), "tok", "", "127.0.0.1")
+	_, err := svc.Refresh(context.Background(), models.RefreshInput{
+		RefreshToken: "tok",
+		IP:           "127.0.0.1",
+	})
 	require.ErrorIs(t, err, ErrInvalidRefreshToken)
 }
 
@@ -35,7 +42,11 @@ func TestAuthService_Refresh_TokenToHashError(t *testing.T) {
 	}
 	t.Cleanup(func() { tokenToHashFn = old })
 
-	_, err := svc.Refresh(context.Background(), "refresh1", "ua", "ip")
+	_, err := svc.Refresh(context.Background(), models.RefreshInput{
+		RefreshToken: "refresh1",
+		UserAgent:    "ua",
+		IP:           "ip",
+	})
 	require.ErrorIs(t, err, ErrInvalidRefreshToken)
 }
 
@@ -44,7 +55,11 @@ func TestAuthService_Refresh_GetSessionOtherError(t *testing.T) {
 	st.errGetSession = errors.New("db fail")
 	svc := NewAuthService(st, "secret", 60, 3600)
 
-	_, err := svc.Refresh(context.Background(), "refresh1", "ua", "ip")
+	_, err := svc.Refresh(context.Background(), models.RefreshInput{
+		RefreshToken: "refresh1",
+		UserAgent:    "ua",
+		IP:           "ip",
+	})
 	require.Error(t, err)
 }
 
@@ -59,7 +74,11 @@ func TestAuthService_Refresh_Revoked(t *testing.T) {
 	sess, _ := st.GetSessionByRefreshHash(context.Background(), h)
 	sess.RevokedAt = &now
 
-	_, err := svc.Refresh(context.Background(), rt, "ua", "ip")
+	_, err := svc.Refresh(context.Background(), models.RefreshInput{
+		RefreshToken: rt,
+		UserAgent:    "ua",
+		IP:           "ip",
+	})
 	require.ErrorIs(t, err, ErrSessionRevoked)
 }
 
@@ -71,7 +90,11 @@ func TestAuthService_Refresh_Expired(t *testing.T) {
 	h := sha256b(rt)
 	_, _ = st.CreateSession(context.Background(), 1, h, time.Now().Add(-time.Minute), "ua", "ip")
 
-	_, err := svc.Refresh(context.Background(), rt, "ua", "ip")
+	_, err := svc.Refresh(context.Background(), models.RefreshInput{
+		RefreshToken: rt,
+		UserAgent:    "ua",
+		IP:           "ip",
+	})
 	require.ErrorIs(t, err, ErrSessionExpired)
 }
 
@@ -83,7 +106,11 @@ func TestAuthService_Refresh_Success_Rotates(t *testing.T) {
 	h := sha256b(rt)
 	_, _ = st.CreateSession(context.Background(), 1, h, time.Now().Add(time.Hour), "ua", "ip")
 
-	res, err := svc.Refresh(context.Background(), rt, "ua", "ip")
+	res, err := svc.Refresh(context.Background(), models.RefreshInput{
+		RefreshToken: rt,
+		UserAgent:    "ua",
+		IP:           "ip",
+	})
 	require.NoError(t, err)
 	require.NotEmpty(t, res.AccessToken)
 	require.NotEmpty(t, res.RefreshToken)
@@ -245,7 +272,11 @@ func TestAuthService_Refresh_RevokeSessionError(t *testing.T) {
 	h := sha256b(rt)
 	_, _ = st.CreateSession(context.Background(), 1, h, time.Now().Add(time.Hour), "ua", "ip")
 
-	_, err := svc.Refresh(context.Background(), rt, "ua", "ip")
+	_, err := svc.Refresh(context.Background(), models.RefreshInput{
+		RefreshToken: rt,
+		UserAgent:    "ua",
+		IP:           "ip",
+	})
 	require.Error(t, err)
 }
 

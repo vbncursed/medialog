@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/vbncursed/medialog/auth-service/config"
-	"github.com/vbncursed/medialog/auth-service/internal/storage/pgstorage"
+	pgstorage "github.com/vbncursed/medialog/auth-service/internal/storage/pgUserStorage"
 )
 
 func InitPGStorage(cfg *config.Config) *pgstorage.PGstorage {

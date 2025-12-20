@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/vbncursed/medialog/auth-service/internal/models"
-	"github.com/vbncursed/medialog/auth-service/internal/storage/pgstorage"
+	pgstorage "github.com/vbncursed/medialog/auth-service/internal/storage/pgUserStorage"
 )
 
 type fakeStorage struct {

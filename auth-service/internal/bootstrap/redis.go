@@ -18,12 +18,12 @@ func InitRedis(cfg *config.Config) *redis.Client {
 		DB:       cfg.Redis.DB,
 	})
 
-	// Быстрый ping при старте (fail-open логика для auth не нужна — если Redis нужен для RL, лучше знать сразу).
+	// Быстрый ping при старте.
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if err := rdb.Ping(ctx).Err(); err != nil {
 		slog.Error("redis ping failed", "addr", addr, "err", err)
-		// Не паникуем — сервис может работать и без Redis (RL будет fail-open).
+		panic(fmt.Errorf("redis is required but ping failed (addr=%s): %w", addr, err))
 	}
 
 	return rdb

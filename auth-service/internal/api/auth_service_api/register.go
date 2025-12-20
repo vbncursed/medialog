@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	domain "github.com/vbncursed/medialog/auth-service/internal/models"
 	"github.com/vbncursed/medialog/auth-service/internal/pb/models"
 	"github.com/vbncursed/medialog/auth-service/internal/services/authService"
 	"google.golang.org/grpc/codes"
@@ -17,7 +18,12 @@ func (a *AuthServiceAPI) Register(ctx context.Context, req *models.RegisterReque
 		return nil, status.Error(codes.ResourceExhausted, "rate limit exceeded")
 	}
 
-	res, err := a.authService.Register(ctx, req.GetEmail(), req.GetPassword(), ua, ip)
+	res, err := a.authService.Register(ctx, domain.RegisterInput{
+		Email:     req.GetEmail(),
+		Password:  req.GetPassword(),
+		UserAgent: ua,
+		IP:        ip,
+	})
 	if err != nil {
 		switch {
 		case errors.Is(err, authService.ErrInvalidArgument):

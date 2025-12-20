@@ -7,7 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/vbncursed/medialog/auth-service/internal/storage/pgstorage"
+	"github.com/vbncursed/medialog/auth-service/internal/models"
+	pgstorage "github.com/vbncursed/medialog/auth-service/internal/storage/pgUserStorage"
 )
 
 type AuthService struct {
@@ -40,40 +41,40 @@ type AuthResult struct {
 	RefreshToken string
 }
 
-func (s *AuthService) Register(ctx context.Context, email, password, userAgent, ip string) (*AuthResult, error) {
-	email = strings.TrimSpace(strings.ToLower(email))
-	if !validateEmail(email) || !validatePassword(password) {
+func (s *AuthService) Register(ctx context.Context, in models.RegisterInput) (*AuthResult, error) {
+	in.Email = strings.TrimSpace(strings.ToLower(in.Email))
+	if !validateEmail(in.Email) || !validatePassword(in.Password) {
 		return nil, ErrInvalidArgument
 	}
 
 	// Проверяем существование пользователя.
-	if _, err := s.storage.GetUserByEmail(ctx, email); err == nil {
+	if _, err := s.storage.GetUserByEmail(ctx, in.Email); err == nil {
 		return nil, ErrEmailAlreadyExists
 	} else if !errors.Is(err, pgstorage.ErrUserNotFound) {
 		return nil, err
 	}
 
-	passHash, err := hashPassword(password)
+	passHash, err := passwordHash(in.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	userID, err := s.storage.CreateUser(ctx, email, passHash)
+	userID, err := s.storage.CreateUser(ctx, in.Email, passHash)
 	if err != nil {
 		// Уникальность email может “стрельнуть” гонкой.
 		return nil, ErrEmailAlreadyExists
 	}
 
-	return s.issueTokens(ctx, userID, userAgent, ip)
+	return s.issueTokens(ctx, userID, in.UserAgent, in.IP)
 }
 
-func (s *AuthService) Login(ctx context.Context, email, password, userAgent, ip string) (*AuthResult, error) {
-	email = strings.TrimSpace(strings.ToLower(email))
-	if !validateEmail(email) || !validatePassword(password) {
+func (s *AuthService) Login(ctx context.Context, in models.LoginInput) (*AuthResult, error) {
+	in.Email = strings.TrimSpace(strings.ToLower(in.Email))
+	if !validateEmail(in.Email) || !validatePassword(in.Password) {
 		return nil, ErrInvalidArgument
 	}
 
-	u, err := s.storage.GetUserByEmail(ctx, email)
+	u, err := s.storage.GetUserByEmail(ctx, in.Email)
 	if err != nil {
 		if errors.Is(err, pgstorage.ErrUserNotFound) {
 			return nil, ErrInvalidCredentials
@@ -81,21 +82,21 @@ func (s *AuthService) Login(ctx context.Context, email, password, userAgent, ip 
 		return nil, err
 	}
 
-	if !comparePassword(u.PasswordHash, password) {
+	if !comparePassword(u.PasswordHash, in.Password) {
 		return nil, ErrInvalidCredentials
 	}
 
-	return s.issueTokens(ctx, u.ID, userAgent, ip)
+	return s.issueTokens(ctx, u.ID, in.UserAgent, in.IP)
 }
 
-func (s *AuthService) Refresh(ctx context.Context, refreshToken, userAgent, ip string) (*AuthResult, error) {
-	refreshToken = strings.TrimSpace(refreshToken)
-	if refreshToken == "" {
+func (s *AuthService) Refresh(ctx context.Context, in models.RefreshInput) (*AuthResult, error) {
+	in.RefreshToken = strings.TrimSpace(in.RefreshToken)
+	if in.RefreshToken == "" {
 		return nil, ErrInvalidArgument
 	}
 
 	// Хешируем refresh token (в БД хранится только hash).
-	_, refreshHash, _, err := tokenToHashFn(refreshToken)
+	_, refreshHash, _, err := tokenToHashFn(in.RefreshToken)
 	if err != nil {
 		return nil, ErrInvalidRefreshToken
 	}
@@ -120,7 +121,7 @@ func (s *AuthService) Refresh(ctx context.Context, refreshToken, userAgent, ip s
 		return nil, err
 	}
 
-	return s.issueTokens(ctx, sess.UserID, userAgent, ip)
+	return s.issueTokens(ctx, sess.UserID, in.UserAgent, in.IP)
 }
 
 func (s *AuthService) Logout(ctx context.Context, refreshToken string) error {

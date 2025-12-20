@@ -19,7 +19,8 @@ func main() {
 	redisClient := bootstrap.InitRedis(cfg)
 	authStorage := bootstrap.InitPGStorage(cfg)
 	authService := bootstrap.InitAuthService(authStorage, cfg)
-	authAPI := bootstrap.InitAuthServiceAPI(authService, redisClient, cfg)
+	loginLimiter, registerLimiter := bootstrap.InitAuthRateLimiters(redisClient, cfg.Auth.RateLimitLoginPerMinute, cfg.Auth.RateLimitRegisterPerMinute)
+	authAPI := bootstrap.InitAuthServiceAPI(authService, loginLimiter, registerLimiter)
 
 	bootstrap.AppRun(*authAPI, cfg.Server.GRPCAddr, cfg.Server.HTTPAddr)
 }

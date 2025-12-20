@@ -4,9 +4,7 @@ import (
 	"context"
 	"net"
 	"net/netip"
-	"time"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/vbncursed/medialog/auth-service/internal/pb/auth_api"
 	"github.com/vbncursed/medialog/auth-service/internal/services/authService"
 	"google.golang.org/grpc/metadata"
@@ -17,15 +15,25 @@ import (
 type AuthServiceAPI struct {
 	auth_api.UnimplementedAuthServiceServer
 	authService     authService.Service
-	loginLimiter    rateLimiter
-	registerLimiter rateLimiter
+	loginLimiter    RateLimiter
+	registerLimiter RateLimiter
 }
 
-func NewAuthServiceAPI(authService authService.Service, redisClient *redis.Client, loginLimitPerMinute, registerLimitPerMinute int) *AuthServiceAPI {
+type denyAllLimiter struct{}
+
+func (denyAllLimiter) Allow(ctx context.Context, key string) bool { return false }
+
+func NewAuthServiceAPI(authService authService.Service, loginLimiter, registerLimiter RateLimiter) *AuthServiceAPI {
+	if loginLimiter == nil {
+		loginLimiter = denyAllLimiter{}
+	}
+	if registerLimiter == nil {
+		registerLimiter = denyAllLimiter{}
+	}
 	return &AuthServiceAPI{
 		authService:     authService,
-		loginLimiter:    newRedisRateLimiter(redisClient, "login", loginLimitPerMinute, time.Minute),
-		registerLimiter: newRedisRateLimiter(redisClient, "register", registerLimitPerMinute, time.Minute),
+		loginLimiter:    loginLimiter,
+		registerLimiter: registerLimiter,
 	}
 }
 
@@ -36,7 +44,6 @@ func clientMeta(ctx context.Context) (userAgent, ip string) {
 		}
 	}
 	if p, ok := peer.FromContext(ctx); ok && p.Addr != nil {
-		// peer.Addr может быть *net.TCPAddr, но не гарантировано.
 		host, _, err := net.SplitHostPort(p.Addr.String())
 		if err == nil {
 			ip = host

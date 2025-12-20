@@ -19,8 +19,7 @@ func InitLogger() {
 	}
 
 	opts := &slog.HandlerOptions{
-		Level: level,
-		// По умолчанию не шумим source-строками; включить можно через LOG_ADD_SOURCE=1.
+		Level:     level,
 		AddSource: os.Getenv("LOG_ADD_SOURCE") == "1",
 		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
 			switch a.Key {
