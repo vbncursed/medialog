@@ -3,16 +3,16 @@ package authService
 import (
 	"context"
 	"errors"
-	"strings"
 
 	"github.com/vbncursed/medialog/auth-service/internal/models"
 	pguserstorage "github.com/vbncursed/medialog/auth-service/internal/storage/pgUserStorage"
 )
 
 func (s *AuthService) Register(ctx context.Context, in models.RegisterInput) (*AuthInfo, error) {
-	in.Email = strings.TrimSpace(strings.ToLower(in.Email))
-	if !validateEmail(in.Email) || !validatePassword(in.Password) {
-		return nil, ErrInvalidArgument
+	var err error
+	in, err = normalizeAndValidateAuthInput(in)
+	if err != nil {
+		return nil, err
 	}
 
 	// Проверяем существование пользователя.
@@ -37,9 +37,10 @@ func (s *AuthService) Register(ctx context.Context, in models.RegisterInput) (*A
 }
 
 func (s *AuthService) Login(ctx context.Context, in models.LoginInput) (*AuthInfo, error) {
-	in.Email = strings.TrimSpace(strings.ToLower(in.Email))
-	if !validateEmail(in.Email) || !validatePassword(in.Password) {
-		return nil, ErrInvalidArgument
+	var err error
+	in, err = normalizeAndValidateAuthInput(in)
+	if err != nil {
+		return nil, err
 	}
 
 	u, err := s.storage.GetUserByEmail(ctx, in.Email)

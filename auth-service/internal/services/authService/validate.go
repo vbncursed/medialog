@@ -4,15 +4,33 @@ import (
 	"net/mail"
 	"strings"
 	"unicode"
+
+	"github.com/vbncursed/medialog/auth-service/internal/models"
 )
 
 func validateEmail(email string) bool {
 	email = strings.TrimSpace(email)
-	if email == "" {
+	if len(email) < 3 || len(email) > 254 {
 		return false
 	}
-	_, err := mail.ParseAddress(email)
-	return err == nil
+
+	// Базовая RFC-проверка.
+	if _, err := mail.ParseAddress(email); err != nil {
+		return false
+	}
+
+	// Дополнительные проверки как в students-service:
+	// - ровно один '@'
+	// - доменная часть не пустая и не слишком длинная
+	parts := strings.Split(email, "@")
+	if len(parts) != 2 {
+		return false
+	}
+	if len(parts[1]) == 0 || len(parts[1]) > 253 {
+		return false
+	}
+
+	return true
 }
 
 func validatePassword(password string) bool {
@@ -34,4 +52,12 @@ func validatePassword(password string) bool {
 	}
 
 	return hasUpper && hasLower && hasDigit
+}
+
+func normalizeAndValidateAuthInput(in models.AuthInput) (models.AuthInput, error) {
+	in.Email = strings.TrimSpace(strings.ToLower(in.Email))
+	if !validateEmail(in.Email) || !validatePassword(in.Password) {
+		return models.AuthInput{}, ErrInvalidArgument
+	}
+	return in, nil
 }
