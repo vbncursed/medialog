@@ -20,7 +20,6 @@ type Session struct {
 	IP          string
 }
 
-// ---- Input DTOs (service-layer request models) ----
 type AuthInput struct {
 	Email     string
 	Password  string

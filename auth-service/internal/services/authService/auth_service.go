@@ -2,9 +2,6 @@ package authService
 
 import "time"
 
-// AuthService — сервисный слой auth.
-// В этом файле держим “каркас”: типы, конструктор и test hooks.
-// Реальные методы разнесены по отдельным файлам по use-case’ам.
 type AuthService struct {
 	storage Storage
 
@@ -19,7 +16,6 @@ type AuthInfo struct {
 	RefreshToken string
 }
 
-// test hooks for hard-to-trigger branches
 var (
 	tokenToHashFn     = tokenToHash
 	newAccessTokenFn  = newAccessToken

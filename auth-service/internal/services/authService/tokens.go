@@ -9,7 +9,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// test hooks
 var randRead = rand.Read
 
 func newRefreshToken(refreshTTL time.Duration) (token string, hash []byte, exp time.Time, err error) {

@@ -16,7 +16,6 @@ func (s *AuthService) Refresh(ctx context.Context, in models.RefreshInput) (*Aut
 		return nil, ErrInvalidArgument
 	}
 
-	// Хешируем refresh token (в БД хранится только hash).
 	_, refreshHash, _, err := tokenToHashFn(in.RefreshToken)
 	if err != nil {
 		return nil, ErrInvalidRefreshToken
@@ -36,7 +35,6 @@ func (s *AuthService) Refresh(ctx context.Context, in models.RefreshInput) (*Aut
 		return nil, ErrSessionExpired
 	}
 
-	// Ротация: ревокаем старую сессию, создаём новую.
 	now := time.Now()
 	if err := s.storage.RevokeSessionByID(ctx, sess.ID, now); err != nil {
 		return nil, err

@@ -2,7 +2,6 @@ package authService_test
 
 import (
 	"errors"
-	"testing"
 	"time"
 
 	"github.com/stretchr/testify/mock"
@@ -12,37 +11,33 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-func TestAuthService_Refresh_InvalidArgs(t *testing.T) {
-	svc, _ := setup(t)
-	_, gotErr := svc.Refresh(bg(), models.RefreshInput{RefreshToken: ""})
+func (s *AuthServiceSuite) TestRefresh_InvalidArgs() {
+	_, gotErr := s.svc.Refresh(s.ctx, models.RefreshInput{RefreshToken: ""})
 	wantErr := authService.ErrInvalidArgument
-	assert.ErrorIs(t, gotErr, wantErr)
+	assert.ErrorIs(s.T(), gotErr, wantErr)
 }
 
-func TestAuthService_Refresh_SessionNotFound(t *testing.T) {
-	svc, st := setup(t)
-	st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("tok")).Return(nil, pguserstorage.ErrSessionNotFound)
-	_, gotErr := svc.Refresh(bg(), refreshIn("tok"))
+func (s *AuthServiceSuite) TestRefresh_SessionNotFound() {
+	s.st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("tok")).Return(nil, pguserstorage.ErrSessionNotFound)
+	_, gotErr := s.svc.Refresh(s.ctx, refreshIn("tok"))
 	wantErr := authService.ErrInvalidRefreshToken
-	assert.ErrorIs(t, gotErr, wantErr)
+	assert.ErrorIs(s.T(), gotErr, wantErr)
 }
 
-func TestAuthService_Refresh_GetSessionOtherError(t *testing.T) {
+func (s *AuthServiceSuite) TestRefresh_GetSessionOtherError() {
 	wantErr := errors.New("db fail")
-	svc, st := setup(t)
-	st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("tok")).Return(nil, wantErr)
+	s.st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("tok")).Return(nil, wantErr)
 
-	_, gotErr := svc.Refresh(bg(), refreshIn("tok"))
-	assert.ErrorIs(t, gotErr, wantErr)
+	_, gotErr := s.svc.Refresh(s.ctx, refreshIn("tok"))
+	assert.ErrorIs(s.T(), gotErr, wantErr)
 }
 
-func TestAuthService_Refresh_Revoked(t *testing.T) {
+func (s *AuthServiceSuite) TestRefresh_Revoked() {
 	now := time.Now()
 	rt := "refresh1"
 	revokedAt := now.Add(-time.Minute)
 
-	svc, st := setup(t)
-	st.EXPECT().
+	s.st.EXPECT().
 		GetSessionByRefreshHash(mock.Anything, sha256b(rt)).
 		Return(&models.Session{
 			ID:        10,
@@ -50,17 +45,16 @@ func TestAuthService_Refresh_Revoked(t *testing.T) {
 			ExpiresAt: now.Add(time.Hour),
 			RevokedAt: &revokedAt,
 		}, nil)
-	_, gotErr := svc.Refresh(bg(), refreshIn(rt))
+	_, gotErr := s.svc.Refresh(s.ctx, refreshIn(rt))
 	wantErr := authService.ErrSessionRevoked
-	assert.ErrorIs(t, gotErr, wantErr)
+	assert.ErrorIs(s.T(), gotErr, wantErr)
 }
 
-func TestAuthService_Refresh_Expired(t *testing.T) {
+func (s *AuthServiceSuite) TestRefresh_Expired() {
 	now := time.Now()
 	rt := "refresh1"
 
-	svc, st := setup(t)
-	st.EXPECT().
+	s.st.EXPECT().
 		GetSessionByRefreshHash(mock.Anything, sha256b(rt)).
 		Return(&models.Session{
 			ID:        10,
@@ -68,135 +62,123 @@ func TestAuthService_Refresh_Expired(t *testing.T) {
 			ExpiresAt: now.Add(-time.Second),
 			RevokedAt: nil,
 		}, nil)
-	_, gotErr := svc.Refresh(bg(), refreshIn(rt))
+	_, gotErr := s.svc.Refresh(s.ctx, refreshIn(rt))
 	wantErr := authService.ErrSessionExpired
-	assert.ErrorIs(t, gotErr, wantErr)
+	assert.ErrorIs(s.T(), gotErr, wantErr)
 }
 
-func TestAuthService_Refresh_RevokeSessionError(t *testing.T) {
+func (s *AuthServiceSuite) TestRefresh_RevokeSessionError() {
 	now := time.Now()
 	rt := "refresh1"
 	wantErr := errors.New("revoke fail")
 
-	svc, st := setup(t)
-	st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b(rt)).
+	s.st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b(rt)).
 		Return(&models.Session{ID: 10, UserID: 1, ExpiresAt: now.Add(time.Hour)}, nil)
-	st.EXPECT().RevokeSessionByID(mock.Anything, uint64(10), mock.Anything).Return(wantErr)
+	s.st.EXPECT().RevokeSessionByID(mock.Anything, uint64(10), mock.Anything).Return(wantErr)
 
-	_, gotErr := svc.Refresh(bg(), refreshIn(rt))
-	assert.ErrorIs(t, gotErr, wantErr)
+	_, gotErr := s.svc.Refresh(s.ctx, refreshIn(rt))
+	assert.ErrorIs(s.T(), gotErr, wantErr)
 }
 
-func TestAuthService_Refresh_Success_Rotates(t *testing.T) {
+func (s *AuthServiceSuite) TestRefresh_Success_Rotates() {
 	now := time.Now()
 	rt := "refresh1"
 
-	svc, st := setup(t)
-	st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b(rt)).
+	s.st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b(rt)).
 		Return(&models.Session{ID: 10, UserID: 1, ExpiresAt: now.Add(time.Hour)}, nil)
-	st.EXPECT().RevokeSessionByID(mock.Anything, uint64(10), mock.Anything).Return(nil)
-	st.EXPECT().CreateSession(mock.Anything, uint64(1), mock.Anything, mock.Anything, "ua", "ip").
+	s.st.EXPECT().RevokeSessionByID(mock.Anything, uint64(10), mock.Anything).Return(nil)
+	s.st.EXPECT().CreateSession(mock.Anything, uint64(1), mock.Anything, mock.Anything, "ua", "ip").
 		Return(uint64(11), nil)
 
-	got, gotErr := svc.Refresh(bg(), refreshIn(rt))
-	assert.NilError(t, gotErr)
+	got, gotErr := s.svc.Refresh(s.ctx, refreshIn(rt))
+	assert.NilError(s.T(), gotErr)
 
 	wantAccessNonEmpty := true
 	wantRefreshNonEmpty := true
-	assert.Equal(t, got.AccessToken != "", wantAccessNonEmpty)
-	assert.Equal(t, got.RefreshToken != "", wantRefreshNonEmpty)
+	assert.Equal(s.T(), got.AccessToken != "", wantAccessNonEmpty)
+	assert.Equal(s.T(), got.RefreshToken != "", wantRefreshNonEmpty)
 }
 
-func TestAuthService_Logout_InvalidArgs(t *testing.T) {
-	svc, _ := setup(t)
-	gotErr := svc.Logout(bg(), "")
+func (s *AuthServiceSuite) TestLogout_InvalidArgs() {
+	gotErr := s.svc.Logout(s.ctx, "")
 	wantErr := authService.ErrInvalidArgument
-	assert.ErrorIs(t, gotErr, wantErr)
+	assert.ErrorIs(s.T(), gotErr, wantErr)
 }
 
-func TestAuthService_Logout_SessionNotFound(t *testing.T) {
-	svc, st := setup(t)
-	st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("tok")).Return(nil, pguserstorage.ErrSessionNotFound)
+func (s *AuthServiceSuite) TestLogout_SessionNotFound() {
+	s.st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("tok")).Return(nil, pguserstorage.ErrSessionNotFound)
 
-	gotErr := svc.Logout(bg(), "tok")
+	gotErr := s.svc.Logout(s.ctx, "tok")
 	wantErr := authService.ErrInvalidRefreshToken
-	assert.ErrorIs(t, gotErr, wantErr)
+	assert.ErrorIs(s.T(), gotErr, wantErr)
 }
 
-func TestAuthService_Logout_GetSessionOtherError(t *testing.T) {
+func (s *AuthServiceSuite) TestLogout_GetSessionOtherError() {
 	wantErr := errors.New("db fail")
-	svc, st := setup(t)
-	st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("tok")).Return(nil, wantErr)
+	s.st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("tok")).Return(nil, wantErr)
 
-	gotErr := svc.Logout(bg(), "tok")
-	assert.ErrorIs(t, gotErr, wantErr)
+	gotErr := s.svc.Logout(s.ctx, "tok")
+	assert.ErrorIs(s.T(), gotErr, wantErr)
 }
 
-func TestAuthService_Logout_RevokeError(t *testing.T) {
+func (s *AuthServiceSuite) TestLogout_RevokeError() {
 	wantErr := errors.New("revoke fail")
-	svc, st := setup(t)
-	st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("refresh1")).
+	s.st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("refresh1")).
 		Return(&models.Session{ID: 10, UserID: 1, ExpiresAt: time.Now().Add(time.Hour)}, nil)
-	st.EXPECT().RevokeSessionByID(mock.Anything, uint64(10), mock.Anything).Return(wantErr)
+	s.st.EXPECT().RevokeSessionByID(mock.Anything, uint64(10), mock.Anything).Return(wantErr)
 
-	gotErr := svc.Logout(bg(), "refresh1")
-	assert.ErrorIs(t, gotErr, wantErr)
+	gotErr := s.svc.Logout(s.ctx, "refresh1")
+	assert.ErrorIs(s.T(), gotErr, wantErr)
 }
 
-func TestAuthService_Logout_Success(t *testing.T) {
-	svc, st := setup(t)
-	st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("refresh1")).
+func (s *AuthServiceSuite) TestLogout_Success() {
+	s.st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("refresh1")).
 		Return(&models.Session{ID: 10, UserID: 1, ExpiresAt: time.Now().Add(time.Hour)}, nil)
-	st.EXPECT().RevokeSessionByID(mock.Anything, uint64(10), mock.Anything).
+	s.st.EXPECT().RevokeSessionByID(mock.Anything, uint64(10), mock.Anything).
 		Return(nil)
 
-	gotErr := svc.Logout(bg(), "refresh1")
-	assert.NilError(t, gotErr)
+	gotErr := s.svc.Logout(s.ctx, "refresh1")
+	assert.NilError(s.T(), gotErr)
 }
 
-func TestAuthService_LogoutAll_InvalidArgs(t *testing.T) {
-	svc, _ := setup(t)
-	gotErr := svc.LogoutAll(bg(), "")
+func (s *AuthServiceSuite) TestLogoutAll_InvalidArgs() {
+	gotErr := s.svc.LogoutAll(s.ctx, "")
 	wantErr := authService.ErrInvalidArgument
-	assert.ErrorIs(t, gotErr, wantErr)
+	assert.ErrorIs(s.T(), gotErr, wantErr)
 }
 
-func TestAuthService_LogoutAll_SessionNotFound(t *testing.T) {
-	svc, st := setup(t)
-	st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("tok")).Return(nil, pguserstorage.ErrSessionNotFound)
+func (s *AuthServiceSuite) TestLogoutAll_SessionNotFound() {
+	s.st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("tok")).Return(nil, pguserstorage.ErrSessionNotFound)
 
-	gotErr := svc.LogoutAll(bg(), "tok")
+	gotErr := s.svc.LogoutAll(s.ctx, "tok")
 	wantErr := authService.ErrInvalidRefreshToken
-	assert.ErrorIs(t, gotErr, wantErr)
+	assert.ErrorIs(s.T(), gotErr, wantErr)
 }
 
-func TestAuthService_LogoutAll_GetSessionOtherError(t *testing.T) {
+func (s *AuthServiceSuite) TestLogoutAll_GetSessionOtherError() {
 	wantErr := errors.New("db fail")
-	svc, st := setup(t)
-	st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("tok")).Return(nil, wantErr)
+	s.st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("tok")).Return(nil, wantErr)
 
-	gotErr := svc.LogoutAll(bg(), "tok")
-	assert.ErrorIs(t, gotErr, wantErr)
+	gotErr := s.svc.LogoutAll(s.ctx, "tok")
+	assert.ErrorIs(s.T(), gotErr, wantErr)
 }
 
-func TestAuthService_LogoutAll_RevokeAllError(t *testing.T) {
+func (s *AuthServiceSuite) TestLogoutAll_RevokeAllError() {
 	wantErr := errors.New("revoke all fail")
-	svc, st := setup(t)
-	st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("refresh1")).
+	s.st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("refresh1")).
 		Return(&models.Session{ID: 10, UserID: 1, ExpiresAt: time.Now().Add(time.Hour)}, nil)
-	st.EXPECT().RevokeAllSessionsByUserID(mock.Anything, uint64(1), mock.Anything).Return(wantErr)
+	s.st.EXPECT().RevokeAllSessionsByUserID(mock.Anything, uint64(1), mock.Anything).Return(wantErr)
 
-	gotErr := svc.LogoutAll(bg(), "refresh1")
-	assert.ErrorIs(t, gotErr, wantErr)
+	gotErr := s.svc.LogoutAll(s.ctx, "refresh1")
+	assert.ErrorIs(s.T(), gotErr, wantErr)
 }
 
-func TestAuthService_LogoutAll_Success(t *testing.T) {
-	svc, st := setup(t)
-	st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("refresh1")).
+func (s *AuthServiceSuite) TestLogoutAll_Success() {
+	s.st.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b("refresh1")).
 		Return(&models.Session{ID: 10, UserID: 1, ExpiresAt: time.Now().Add(time.Hour)}, nil)
-	st.EXPECT().RevokeAllSessionsByUserID(mock.Anything, uint64(1), mock.Anything).
+	s.st.EXPECT().RevokeAllSessionsByUserID(mock.Anything, uint64(1), mock.Anything).
 		Return(nil)
 
-	gotErr := svc.LogoutAll(bg(), "refresh1")
-	assert.NilError(t, gotErr)
+	gotErr := s.svc.LogoutAll(s.ctx, "refresh1")
+	assert.NilError(s.T(), gotErr)
 }
