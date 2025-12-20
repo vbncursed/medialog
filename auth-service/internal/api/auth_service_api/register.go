@@ -13,7 +13,7 @@ import (
 func (a *AuthServiceAPI) Register(ctx context.Context, req *models.RegisterRequest) (*models.AuthResponse, error) {
 	ua, ip := clientMeta(ctx)
 
-	if !a.registerLimiter.Allow(normalizeRateLimitKey(ip)) {
+	if !a.registerLimiter.Allow(ctx, normalizeRateLimitKey(ip)) {
 		return nil, status.Error(codes.ResourceExhausted, "rate limit exceeded")
 	}
 

@@ -16,9 +16,10 @@ func main() {
 		panic(fmt.Sprintf("ошибка парсинга конфига, %v", err))
 	}
 
+	redisClient := bootstrap.InitRedis(cfg)
 	authStorage := bootstrap.InitPGStorage(cfg)
 	authService := bootstrap.InitAuthService(authStorage, cfg)
-	authAPI := bootstrap.InitAuthServiceAPI(authService, cfg)
+	authAPI := bootstrap.InitAuthServiceAPI(authService, redisClient, cfg)
 
 	bootstrap.AppRun(*authAPI, cfg.Server.GRPCAddr, cfg.Server.HTTPAddr)
 }

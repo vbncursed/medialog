@@ -3,8 +3,10 @@ package auth_service_api
 import (
 	"context"
 	"net"
+	"net/netip"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/vbncursed/medialog/auth-service/internal/pb/auth_api"
 	"github.com/vbncursed/medialog/auth-service/internal/services/authService"
 	"google.golang.org/grpc/metadata"
@@ -15,15 +17,15 @@ import (
 type AuthServiceAPI struct {
 	auth_api.UnimplementedAuthServiceServer
 	authService     authService.Service
-	loginLimiter    *fixedWindowLimiter
-	registerLimiter *fixedWindowLimiter
+	loginLimiter    rateLimiter
+	registerLimiter rateLimiter
 }
 
-func NewAuthServiceAPI(authService authService.Service, loginLimitPerMinute, registerLimitPerMinute int) *AuthServiceAPI {
+func NewAuthServiceAPI(authService authService.Service, redisClient *redis.Client, loginLimitPerMinute, registerLimitPerMinute int) *AuthServiceAPI {
 	return &AuthServiceAPI{
 		authService:     authService,
-		loginLimiter:    newFixedWindowLimiter(loginLimitPerMinute, time.Minute),
-		registerLimiter: newFixedWindowLimiter(registerLimitPerMinute, time.Minute),
+		loginLimiter:    newRedisRateLimiter(redisClient, "login", loginLimitPerMinute, time.Minute),
+		registerLimiter: newRedisRateLimiter(redisClient, "register", registerLimitPerMinute, time.Minute),
 	}
 }
 
@@ -42,6 +44,7 @@ func clientMeta(ctx context.Context) (userAgent, ip string) {
 			ip = p.Addr.String()
 		}
 	}
+	ip = normalizeRateLimitKey(ip)
 	return userAgent, ip
 }
 
@@ -49,5 +52,20 @@ func normalizeRateLimitKey(ip string) string {
 	if ip == "" {
 		return "unknown"
 	}
+
+	// Приводим ::1 к 127.0.0.1 (чтобы локальные запросы не плодили разные ключи).
+	// Также схлопываем IPv6-mapped IPv4 (::ffff:127.0.0.1) в обычный IPv4.
+	if addr, err := netip.ParseAddr(ip); err == nil {
+		if addr.IsLoopback() {
+			return "127.0.0.1"
+		}
+		if addr.Is4In6() {
+			return addr.Unmap().String()
+		}
+		if addr.Is4() {
+			return addr.String()
+		}
+	}
+
 	return ip
 }

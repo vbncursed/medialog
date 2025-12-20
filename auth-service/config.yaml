@@ -6,6 +6,12 @@ database:
   name: "medialog"
   ssl_mode: "disable"
 
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
+
 auth:
   # В проде только через env/secret manager.
   jwt_secret: "CHANGE_ME"

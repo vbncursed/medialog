@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	Database DatabaseConfig `yaml:"database"`
+	Redis    RedisConfig    `yaml:"redis"`
 	Auth     AuthConfig     `yaml:"auth"`
 	Server   ServerConfig   `yaml:"server"`
 }
@@ -20,6 +21,13 @@ type DatabaseConfig struct {
 	Password string `yaml:"password"`
 	DBName   string `yaml:"name"`
 	SSLMode  string `yaml:"ssl_mode"`
+}
+
+type RedisConfig struct {
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	Password string `yaml:"password"`
+	DB       int    `yaml:"db"`
 }
 
 type AuthConfig struct {
