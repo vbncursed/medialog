@@ -9,7 +9,7 @@ import (
 	pguserstorage "github.com/vbncursed/medialog/auth-service/internal/storage/pgUserStorage"
 )
 
-func (s *AuthService) Register(ctx context.Context, in models.RegisterInput) (*AuthResult, error) {
+func (s *AuthService) Register(ctx context.Context, in models.RegisterInput) (*AuthInfo, error) {
 	in.Email = strings.TrimSpace(strings.ToLower(in.Email))
 	if !validateEmail(in.Email) || !validatePassword(in.Password) {
 		return nil, ErrInvalidArgument
@@ -36,7 +36,7 @@ func (s *AuthService) Register(ctx context.Context, in models.RegisterInput) (*A
 	return s.issueTokens(ctx, userID, in.UserAgent, in.IP)
 }
 
-func (s *AuthService) Login(ctx context.Context, in models.LoginInput) (*AuthResult, error) {
+func (s *AuthService) Login(ctx context.Context, in models.LoginInput) (*AuthInfo, error) {
 	in.Email = strings.TrimSpace(strings.ToLower(in.Email))
 	if !validateEmail(in.Email) || !validatePassword(in.Password) {
 		return nil, ErrInvalidArgument

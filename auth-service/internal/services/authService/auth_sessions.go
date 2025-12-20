@@ -10,7 +10,7 @@ import (
 	pguserstorage "github.com/vbncursed/medialog/auth-service/internal/storage/pgUserStorage"
 )
 
-func (s *AuthService) Refresh(ctx context.Context, in models.RefreshInput) (*AuthResult, error) {
+func (s *AuthService) Refresh(ctx context.Context, in models.RefreshInput) (*AuthInfo, error) {
 	in.RefreshToken = strings.TrimSpace(in.RefreshToken)
 	if in.RefreshToken == "" {
 		return nil, ErrInvalidArgument

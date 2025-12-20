@@ -2,7 +2,7 @@ package authService
 
 import "context"
 
-func (s *AuthService) issueTokens(ctx context.Context, userID uint64, userAgent, ip string) (*AuthResult, error) {
+func (s *AuthService) issueTokens(ctx context.Context, userID uint64, userAgent, ip string) (*AuthInfo, error) {
 	access, err := newAccessTokenFn(s.jwtSecret, userID, s.accessTTL)
 	if err != nil {
 		return nil, err
@@ -18,7 +18,7 @@ func (s *AuthService) issueTokens(ctx context.Context, userID uint64, userAgent,
 		return nil, err
 	}
 
-	return &AuthResult{
+	return &AuthInfo{
 		UserID:       userID,
 		AccessToken:  access,
 		RefreshToken: refresh,

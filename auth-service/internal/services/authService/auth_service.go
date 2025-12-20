@@ -13,7 +13,7 @@ type AuthService struct {
 	refreshTTL time.Duration
 }
 
-type AuthResult struct {
+type AuthInfo struct {
 	UserID       uint64
 	AccessToken  string
 	RefreshToken string
