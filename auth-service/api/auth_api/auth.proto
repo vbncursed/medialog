@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package auth.service.v1;
+
+option go_package = "github.com/vbncursed/medialog/auth-service/internal/pb/auth_api";
+
+import "google/api/annotations.proto";
+import "models/auth_model.proto";
+
+// AuthService предоставляет операции регистрации/логина и управление refresh-сессиями.
+service AuthService {
+  // Register создаёт пользователя и возвращает пару access/refresh токенов.
+  rpc Register(auth.models.v1.RegisterRequest) returns (auth.models.v1.AuthResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/register"
+      body: "*"
+    };
+  }
+
+  // Login проверяет учётные данные и возвращает пару access/refresh токенов.
+  rpc Login(auth.models.v1.LoginRequest) returns (auth.models.v1.AuthResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/login"
+      body: "*"
+    };
+  }
+
+  // Refresh принимает refresh_token и выдаёт новую пару access/refresh (refresh ротируется).
+  rpc Refresh(auth.models.v1.RefreshRequest) returns (auth.models.v1.AuthResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/refresh"
+      body: "*"
+    };
+  }
+
+  // Logout отзывает refresh-сессию (по refresh_token).
+  rpc Logout(auth.models.v1.LogoutRequest) returns (auth.models.v1.LogoutResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/logout"
+      body: "*"
+    };
+  }
+
+  // LogoutAll отзывает все refresh-сессии пользователя (по refresh_token одной из сессий).
+  rpc LogoutAll(auth.models.v1.LogoutAllRequest) returns (auth.models.v1.LogoutResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/logout-all"
+      body: "*"
+    };
+  }
+}
+
+

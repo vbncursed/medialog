@@ -1,0 +1,38 @@
+# OS / misc
+.DS_Store
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Go
+bin/
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+cover.out
+
+# Go workspace / tooling
+.gocache/
+
+# Node / Next.js (на будущее)
+node_modules/
+.next/
+out/
+
+# Env / secrets
+.env
+.env.*
+
+# Local DB / tools (если появятся)
+.tmp/
+
+# Вложенный эталонный репозиторий (не коммитим чужую историю)
+students/
+
+
