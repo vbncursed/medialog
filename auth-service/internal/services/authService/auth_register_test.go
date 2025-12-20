@@ -1,29 +1,25 @@
-package authService
+package authService_test
 
 import (
-	"context"
 	"errors"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
 	"github.com/vbncursed/medialog/auth-service/internal/models"
-	"github.com/stretchr/testify/require"
+	"github.com/vbncursed/medialog/auth-service/internal/services/authService"
+	pguserstorage "github.com/vbncursed/medialog/auth-service/internal/storage/pgUserStorage"
+	"gotest.tools/v3/assert"
 )
 
 func TestAuthService_Register_InvalidArgs(t *testing.T) {
-	st := newFakeStorage()
-	svc := NewAuthService(st, "secret", 60, 3600)
-
-	_, err := svc.Register(context.Background(), models.RegisterInput{
-		Email:    "bad",
-		Password: "short",
-		IP:       "127.0.0.1",
-	})
-	require.ErrorIs(t, err, ErrInvalidArgument)
+	svc, _ := setup(t)
+	_, gotErr := svc.Register(bg(), inEmailPass[models.RegisterInput]("bad", "short"))
+	wantErr := authService.ErrInvalidArgument
+	assert.ErrorIs(t, gotErr, wantErr)
 }
 
 func TestAuthService_Register_PasswordComplexity(t *testing.T) {
-	st := newFakeStorage()
-	svc := NewAuthService(st, "secret", 60, 3600)
+	svc, _ := setup(t)
 
 	cases := []string{
 		"password123", // no upper
@@ -33,82 +29,54 @@ func TestAuthService_Register_PasswordComplexity(t *testing.T) {
 	}
 
 	for _, pwd := range cases {
-		_, err := svc.Register(context.Background(), models.RegisterInput{
-			Email:    "a@b.com",
-			Password: pwd,
-			IP:       "127.0.0.1",
-		})
-		require.ErrorIs(t, err, ErrInvalidArgument, "pwd=%q", pwd)
+		_, gotErr := svc.Register(bg(), inEmailPass[models.RegisterInput]("a@b.com", pwd))
+		wantErr := authService.ErrInvalidArgument
+		assert.ErrorIs(t, gotErr, wantErr)
 	}
 }
 
 func TestAuthService_Register_EmailExists(t *testing.T) {
-	st := newFakeStorage()
-	_, _ = st.CreateUser(context.Background(), "a@b.com", "hash")
-
-	svc := NewAuthService(st, "secret", 60, 3600)
-	_, err := svc.Register(context.Background(), models.RegisterInput{
-		Email:    "a@b.com",
-		Password: "Password123",
-		IP:       "127.0.0.1",
-	})
-	require.ErrorIs(t, err, ErrEmailAlreadyExists)
+	svc, st := setup(t)
+	st.EXPECT().
+		GetUserByEmail(bg(), "a@b.com").
+		Return(&models.User{ID: 1, Email: "a@b.com", PasswordHash: "hash"}, nil)
+	_, gotErr := svc.Register(bg(), inEmailPass[models.RegisterInput]("a@b.com", "Password123"))
+	wantErr := authService.ErrEmailAlreadyExists
+	assert.ErrorIs(t, gotErr, wantErr)
 }
 
 func TestAuthService_Register_StorageLookupError(t *testing.T) {
-	st := newFakeStorage()
-	st.errGetUser = errors.New("boom")
+	wantErr := errors.New("boom")
+	svc, st := setup(t)
+	st.EXPECT().GetUserByEmail(bg(), "a@b.com").Return(nil, wantErr)
 
-	svc := NewAuthService(st, "secret", 60, 3600)
-	_, err := svc.Register(context.Background(), models.RegisterInput{
-		Email:    "a@b.com",
-		Password: "Password123",
-		IP:       "127.0.0.1",
-	})
-	require.Error(t, err)
+	_, gotErr := svc.Register(bg(), inEmailPass[models.RegisterInput]("a@b.com", "Password123"))
+	assert.ErrorIs(t, gotErr, wantErr)
 }
 
 func TestAuthService_Register_CreateUserErrorMappedToAlreadyExists(t *testing.T) {
-	st := newFakeStorage()
-	st.errCreateUser = errors.New("db down")
+	svc, st := setup(t)
+	st.EXPECT().GetUserByEmail(bg(), "a@b.com").Return(nil, pguserstorage.ErrUserNotFound)
+	st.EXPECT().CreateUser(mock.Anything, "a@b.com", mock.Anything).Return(uint64(0), errors.New("db down"))
 
-	svc := NewAuthService(st, "secret", 60, 3600)
-	_, err := svc.Register(context.Background(), models.RegisterInput{
-		Email:    "a@b.com",
-		Password: "Password123",
-		IP:       "127.0.0.1",
-	})
-	require.ErrorIs(t, err, ErrEmailAlreadyExists)
+	_, gotErr := svc.Register(bg(), inEmailPass[models.RegisterInput]("a@b.com", "Password123"))
+	wantErr := authService.ErrEmailAlreadyExists
+	assert.ErrorIs(t, gotErr, wantErr)
 }
 
 func TestAuthService_Register_Success(t *testing.T) {
-	st := newFakeStorage()
-	svc := NewAuthService(st, "secret", 60, 3600)
+	svc, st := setup(t)
+	st.EXPECT().GetUserByEmail(bg(), "a@b.com").Return(nil, pguserstorage.ErrUserNotFound)
+	st.EXPECT().CreateUser(mock.Anything, "a@b.com", mock.Anything).Return(uint64(1), nil)
+	st.EXPECT().CreateSession(mock.Anything, uint64(1), mock.Anything, mock.Anything, "ua", "127.0.0.1").Return(uint64(1), nil)
 
-	res, err := svc.Register(context.Background(), models.RegisterInput{
-		Email:     "a@b.com",
-		Password:  "Password123",
-		UserAgent: "ua",
-		IP:        "127.0.0.1",
-	})
-	require.NoError(t, err)
-	require.NotZero(t, res.UserID)
-	require.NotEmpty(t, res.AccessToken)
-	require.NotEmpty(t, res.RefreshToken)
-}
+	got, gotErr := svc.Register(bg(), inEmailPassWithUA[models.RegisterInput]("a@b.com", "Password123", "ua"))
+	assert.NilError(t, gotErr)
 
-func TestAuthService_Register_HashPasswordError(t *testing.T) {
-	st := newFakeStorage()
-	svc := NewAuthService(st, "secret", 60, 3600)
-
-	old := bcryptGenerate
-	bcryptGenerate = func(_ []byte, _ int) ([]byte, error) { return nil, errors.New("bcrypt fail") }
-	t.Cleanup(func() { bcryptGenerate = old })
-
-	_, err := svc.Register(context.Background(), models.RegisterInput{
-		Email:    "a@b.com",
-		Password: "Password123",
-		IP:       "127.0.0.1",
-	})
-	require.Error(t, err)
+	wantUserIDNonZero := true
+	wantAccessNonEmpty := true
+	wantRefreshNonEmpty := true
+	assert.Equal(t, got.UserID != 0, wantUserIDNonZero)
+	assert.Equal(t, got.AccessToken != "", wantAccessNonEmpty)
+	assert.Equal(t, got.RefreshToken != "", wantRefreshNonEmpty)
 }

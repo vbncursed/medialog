@@ -7,4 +7,5 @@ packages:
       structname: "{{.InterfaceName}}"
     interfaces:
       Service:
+      Storage:
 

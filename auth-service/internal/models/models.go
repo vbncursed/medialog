@@ -21,25 +21,17 @@ type Session struct {
 }
 
 // ---- Input DTOs (service-layer request models) ----
-
-// RegisterInput — данные для регистрации пользователя.
-// Это не "пользовательская" доменная модель, т.к. содержит plaintext пароль.
-type RegisterInput struct {
+type AuthInput struct {
 	Email     string
 	Password  string
 	UserAgent string
 	IP        string
 }
 
-// LoginInput — данные для логина пользователя.
-type LoginInput struct {
-	Email     string
-	Password  string
-	UserAgent string
-	IP        string
-}
+type RegisterInput = AuthInput
 
-// RefreshInput — данные для refresh операции.
+type LoginInput = AuthInput
+
 type RefreshInput struct {
 	RefreshToken string
 	UserAgent    string

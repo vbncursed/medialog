@@ -9,13 +9,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type tokenPair struct {
-	AccessToken  string
-	RefreshToken string
-	RefreshHash  []byte
-	RefreshExp   time.Time
-}
-
 // test hooks
 var randRead = rand.Read
 

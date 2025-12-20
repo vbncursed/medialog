@@ -8,7 +8,7 @@ import (
 )
 
 // Storage — интерфейс хранилища для сервисного слоя auth-service.
-// Реализация: `internal/storage/pgstorage.PGstorage`.
+// Реализация: `internal/storage/pguserstorage.pguserstorage`.
 type Storage interface {
 	CreateUser(ctx context.Context, email string, passwordHash string) (uint64, error)
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
