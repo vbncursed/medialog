@@ -16,7 +16,8 @@ func (s *AuthService) Register(ctx context.Context, in models.RegisterInput) (*A
 	}
 
 	// Проверяем существование пользователя.
-	if _, err := s.authStorage.GetUserByEmail(ctx, in.Email); err == nil {
+	_, err = s.authStorage.GetUserByEmail(ctx, in.Email)
+	if err == nil {
 		return nil, ErrEmailAlreadyExists
 	}
 	if !errors.Is(err, auth_storage.ErrUserNotFound) {
