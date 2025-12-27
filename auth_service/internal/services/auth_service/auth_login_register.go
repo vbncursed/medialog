@@ -18,7 +18,8 @@ func (s *AuthService) Register(ctx context.Context, in models.RegisterInput) (*A
 	// Проверяем существование пользователя.
 	if _, err := s.authStorage.GetUserByEmail(ctx, in.Email); err == nil {
 		return nil, ErrEmailAlreadyExists
-	} else if !errors.Is(err, auth_storage.ErrUserNotFound) {
+	}
+	if !errors.Is(err, auth_storage.ErrUserNotFound) {
 		return nil, err
 	}
 
@@ -29,7 +30,6 @@ func (s *AuthService) Register(ctx context.Context, in models.RegisterInput) (*A
 
 	userID, err := s.authStorage.CreateUser(ctx, in.Email, passHash)
 	if err != nil {
-		// Уникальность email может “стрельнуть” гонкой.
 		return nil, ErrEmailAlreadyExists
 	}
 
