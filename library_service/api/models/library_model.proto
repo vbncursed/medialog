@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package library.models.v1;
+
+option go_package = "github.com/vbncursed/medialog/library_service/internal/pb/models";
+
+import "google/protobuf/timestamp.proto";
+
+enum MediaType {
+  MEDIA_TYPE_UNSPECIFIED = 0;
+  MEDIA_TYPE_MOVIE = 1;
+  MEDIA_TYPE_TV = 2;
+  MEDIA_TYPE_BOOK = 3;
+}
+
+enum EntryStatus {
+  ENTRY_STATUS_UNSPECIFIED = 0;
+  ENTRY_STATUS_PLANNED = 1;
+  ENTRY_STATUS_IN_PROGRESS = 2;
+  ENTRY_STATUS_DONE = 3;
+}
+
+message Entry {
+  uint64 entry_id = 1;
+  uint64 media_id = 2;
+  MediaType type = 3;
+  EntryStatus status = 4;
+  uint32 rating = 5;
+  string review = 6;
+  repeated string tags = 7;
+  google.protobuf.Timestamp started_at = 8;
+  google.protobuf.Timestamp finished_at = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+message CreateEntryRequest {
+  uint64 media_id = 1;
+  MediaType type = 2;
+  EntryStatus status = 3;
+  uint32 rating = 4;
+  string review = 5;
+  repeated string tags = 6;
+  google.protobuf.Timestamp started_at = 7;
+  google.protobuf.Timestamp finished_at = 8;
+}
+
+message UpdateEntryRequest {
+  uint64 entry_id = 1;
+  optional EntryStatus status = 2;
+  optional uint32 rating = 3;
+  optional string review = 4;
+  repeated string tags = 5;
+  optional google.protobuf.Timestamp started_at = 6;
+  optional google.protobuf.Timestamp finished_at = 7;
+}
+
+message DeleteEntryRequest {
+  uint64 entry_id = 1;
+}
+
+message GetEntryRequest {
+  uint64 entry_id = 1;
+}
+
+message ListEntriesRequest {
+  repeated MediaType types = 1;
+  repeated EntryStatus statuses = 2;
+  repeated string tags = 3;
+  uint32 min_rating = 4;
+  uint32 max_rating = 5;
+  optional google.protobuf.Timestamp finished_from = 6;
+  optional google.protobuf.Timestamp finished_to = 7;
+  string sort_by = 8;
+  string sort_order = 9;
+  uint32 page = 10;
+  uint32 page_size = 11;
+}
+
+message ListEntriesResponse {
+  repeated Entry entries = 1;
+  uint32 total = 2;
+  uint32 page = 3;
+  uint32 page_size = 4;
+  uint32 total_pages = 5;
+}
+
+message EntryResponse {
+  Entry entry = 1;
+}
+
+message DeleteEntryResponse {}
+

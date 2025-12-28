@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -63,7 +64,8 @@ func (l *redisRateLimiter) Allow(ctx context.Context, key string) bool {
 	execCtx, cancel = context.WithTimeout(execCtx, 200*time.Millisecond)
 	defer cancel()
 
-	redisKey := fmt.Sprintf("rl:%s:%s", l.kind, key)
+	normalizedKey := normalizeRedisKey(key)
+	redisKey := fmt.Sprintf("rl:%s:%s", l.kind, normalizedKey)
 	ttlSeconds := int64(l.window.Seconds())
 	if ttlSeconds <= 0 {
 		ttlSeconds = 60
@@ -80,4 +82,31 @@ func (l *redisRateLimiter) Allow(ctx context.Context, key string) bool {
 		slog.Info("rate limit exceeded", "key", redisKey, "count", n, "limit", l.limit, "kind", l.kind)
 	}
 	return allowed
+}
+
+// normalizeRedisKey нормализует ключ для использования в Redis
+// Заменяет специальные символы на безопасные альтернативы
+func normalizeRedisKey(key string) string {
+	if key == "" {
+		return "unknown"
+	}
+
+	key = strings.ReplaceAll(key, "[", "_")
+	key = strings.ReplaceAll(key, "]", "_")
+	key = strings.ReplaceAll(key, ":", "_")
+	key = strings.ReplaceAll(key, " ", "_")
+	key = strings.ReplaceAll(key, "/", "_")
+	key = strings.ReplaceAll(key, "\\", "_")
+
+	for strings.Contains(key, "__") {
+		key = strings.ReplaceAll(key, "__", "_")
+	}
+
+	key = strings.Trim(key, "_")
+
+	if key == "" {
+		return "unknown"
+	}
+
+	return key
 }

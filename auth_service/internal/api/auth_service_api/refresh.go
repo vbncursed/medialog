@@ -33,6 +33,9 @@ func (a *AuthServiceAPI) Refresh(ctx context.Context, req *models.RefreshRequest
 		case errors.Is(err, auth_service.ErrSessionRevoked):
 			return nil, newError(codes.Unauthenticated, ErrCodeSessionRevoked, "Session has been revoked. Please log in again.")
 		default:
+			if isDatabaseError(err) {
+				return nil, newError(codes.Unavailable, ErrCodeServiceUnavailable, "Service temporarily unavailable. Please try again later.")
+			}
 			return nil, newError(codes.Internal, ErrCodeInternal, "An internal error occurred. Please try again later.")
 		}
 	}

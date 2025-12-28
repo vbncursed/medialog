@@ -3,7 +3,6 @@ package session_storage
 import (
 	"context"
 	"encoding/json"
-	"time"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/vbncursed/medialog/auth_service/internal/models"
@@ -11,26 +10,7 @@ import (
 
 func (s *SessionStorage) RevokeSessionByRefreshHash(ctx context.Context, refreshHash []byte) error {
 	key := sessionKey(refreshHash)
-
-	sess, err := s.GetSessionByRefreshHash(ctx, refreshHash)
-	if err != nil {
-		return err
-	}
-
-	now := time.Now()
-	sess.RevokedAt = &now
-
-	data, err := json.Marshal(sess)
-	if err != nil {
-		return err
-	}
-
-	ttl := time.Until(sess.ExpiresAt)
-	if ttl <= 0 {
-		ttl = time.Second
-	}
-
-	return s.rdb.Set(ctx, key, data, ttl).Err()
+	return s.rdb.Del(ctx, key).Err()
 }
 
 func (s *SessionStorage) RevokeAllSessionsByUserID(ctx context.Context, userID uint64) error {
@@ -40,7 +20,7 @@ func (s *SessionStorage) RevokeAllSessionsByUserID(ctx context.Context, userID u
 		return err
 	}
 
-	now := time.Now()
+	keysToDelete := make([]string, 0)
 	for _, key := range keys {
 		data, err := s.rdb.Get(ctx, key).Bytes()
 		if err != nil {
@@ -55,22 +35,13 @@ func (s *SessionStorage) RevokeAllSessionsByUserID(ctx context.Context, userID u
 			continue
 		}
 
-		if sess.UserID == userID && sess.RevokedAt == nil {
-			sess.RevokedAt = &now
-			updatedData, err := json.Marshal(sess)
-			if err != nil {
-				continue
-			}
-
-			ttl := time.Until(sess.ExpiresAt)
-			if ttl <= 0 {
-				ttl = time.Second
-			}
-
-			if err := s.rdb.Set(ctx, key, updatedData, ttl).Err(); err != nil {
-				return err
-			}
+		if sess.UserID == userID {
+			keysToDelete = append(keysToDelete, key)
 		}
+	}
+
+	if len(keysToDelete) > 0 {
+		return s.rdb.Del(ctx, keysToDelete...).Err()
 	}
 
 	return nil

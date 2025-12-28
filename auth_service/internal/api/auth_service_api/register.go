@@ -34,6 +34,9 @@ func (a *AuthServiceAPI) Register(ctx context.Context, req *models.RegisterReque
 		case errors.Is(err, auth_service.ErrEmailAlreadyExists):
 			return nil, newError(codes.AlreadyExists, ErrCodeEmailAlreadyExists, "An account with this email already exists.")
 		default:
+			if isDatabaseError(err) {
+				return nil, newError(codes.Unavailable, ErrCodeServiceUnavailable, "Service temporarily unavailable. Please try again later.")
+			}
 			return nil, newError(codes.Internal, ErrCodeInternal, "An internal error occurred. Please try again later.")
 		}
 	}

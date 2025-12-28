@@ -37,27 +37,79 @@ services:
     networks:
       - medialog-net
 
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: medialog-rabbitmq
+  kafka:
+    image: apache/kafka:latest
+    container_name: medialog-kafka
     restart: unless-stopped
-    ports:
-      - "5672:5672"    # AMQP
-      - "15672:15672"  # Management UI
+    user: "1000:1000"
     environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: admin
+      - CLUSTER_ID=5L6g3nShT-eMCtK--X86sw  
+      - KAFKA_NODE_ID=1
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_LISTENERS=PLAINTEXT_HOST://:9092,PLAINTEXT_DOCKER://:9094,CONTROLLER://:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT_HOST://localhost:9092,PLAINTEXT_DOCKER://kafka:9094
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT_DOCKER:PLAINTEXT
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT_DOCKER
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+      - KAFKA_LOG_DIRS=/kafka/kraft-combined-logs
+    ports:
+      - "9092:9092"
+      - "9094:9094"
+    volumes:
+      - kafka_data:/kafka/kraft-combined-logs
     healthcheck:
-      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    networks:
+      - medialog-net
+
+  kafka-init:
+    image: apache/kafka:latest
+    container_name: medialog-kafka-init
+    user: "root"
+    command: >
+      bash -c "
+      echo 'Setting permissions on volume...' &&
+      chown -R 1000:1000 /kafka/kraft-combined-logs &&
+      chmod -R 755 /kafka/kraft-combined-logs &&
+      echo 'Waiting for Kafka to be ready...' &&
+      for i in {1..60}; do
+        /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server kafka:9094 && break || sleep 2
+      done &&
+      echo 'Creating topic library.entry.changed...' &&
+      /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --bootstrap-server kafka:9094 --topic library.entry.changed --partitions 1 --replication-factor 1 &&
+      echo 'Topic created successfully'
+      "
+    volumes:
+      - kafka_data:/kafka/kraft-combined-logs
+    networks:
+      - medialog-net
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: medialog-kafka-ui
+    restart: unless-stopped
+    depends_on:
+      - kafka
+    ports:
+      - "8090:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS=kafka:9094
+      - KAFKA_CLUSTERS_0_NAME=kraft
+      - KAFKA_UI_AUTH_ENABLED=false
     networks:
       - medialog-net
 
 volumes:
   postgres_data:
   redis_data:
+  kafka_data:
 
 networks:
   medialog-net:

@@ -1,0 +1,21 @@
+database:
+  host: "localhost"
+  port: 5432
+  username: "admin"
+  password: "admin"
+  name: "medialog"
+  ssl_mode: "disable"
+
+kafka:
+  host: "localhost"
+  port: 9092
+  library_entry_event_topic: "library.entry.changed"
+
+server:
+  grpc_addr: ":50053"
+  http_addr: ":8082"
+
+auth:
+  # В проде только через env/secret manager.
+  jwt_secret: "CHANGE_ME"
+

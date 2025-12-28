@@ -18,6 +18,9 @@ func (a *AuthServiceAPI) LogoutAll(ctx context.Context, req *models.LogoutAllReq
 		case errors.Is(err, auth_service.ErrInvalidRefreshToken):
 			return nil, newError(codes.Unauthenticated, ErrCodeInvalidToken, "Invalid refresh token.")
 		default:
+			if isDatabaseError(err) {
+				return nil, newError(codes.Unavailable, ErrCodeServiceUnavailable, "Service temporarily unavailable. Please try again later.")
+			}
 			return nil, newError(codes.Internal, ErrCodeInternal, "An internal error occurred. Please try again later.")
 		}
 	}

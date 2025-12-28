@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package library.service.v1;
+
+option go_package = "github.com/vbncursed/medialog/library_service/internal/pb/library_api";
+
+import "google/api/annotations.proto";
+import "models/library_model.proto";
+
+// LibraryService предоставляет операции управления библиотекой пользователя (записями о контенте).
+service LibraryService {
+  // CreateEntry создаёт новую запись в библиотеке пользователя.
+  rpc CreateEntry(library.models.v1.CreateEntryRequest) returns (library.models.v1.EntryResponse) {
+    option (google.api.http) = {
+      post: "/v1/library/entries"
+      body: "*"
+    };
+  }
+
+  // GetEntry возвращает запись по ID (с проверкой владельца).
+  // user_id извлекается из токена авторизации.
+  rpc GetEntry(library.models.v1.GetEntryRequest) returns (library.models.v1.EntryResponse) {
+    option (google.api.http) = {
+      get: "/v1/library/entries/{entry_id}"
+    };
+  }
+
+  // UpdateEntry обновляет существующую запись (статус, оценка, заметка, теги, даты).
+  rpc UpdateEntry(library.models.v1.UpdateEntryRequest) returns (library.models.v1.EntryResponse) {
+    option (google.api.http) = {
+      put: "/v1/library/entries/{entry_id}"
+      body: "*"
+    };
+  }
+
+  // DeleteEntry удаляет запись из библиотеки пользователя.
+  // user_id извлекается из токена авторизации.
+  rpc DeleteEntry(library.models.v1.DeleteEntryRequest) returns (library.models.v1.DeleteEntryResponse) {
+    option (google.api.http) = {
+      delete: "/v1/library/entries/{entry_id}"
+    };
+  }
+
+  // ListEntries возвращает список записей с фильтрацией, сортировкой и пагинацией.
+  rpc ListEntries(library.models.v1.ListEntriesRequest) returns (library.models.v1.ListEntriesResponse) {
+    option (google.api.http) = {
+      post: "/v1/library/entries/list"
+      body: "*"
+    };
+  }
+}
+

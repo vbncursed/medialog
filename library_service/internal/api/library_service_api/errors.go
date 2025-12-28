@@ -1,4 +1,4 @@
-package auth_service_api
+package library_service_api
 
 import (
 	"encoding/json"
@@ -8,26 +8,22 @@ import (
 )
 
 const (
-	ErrCodeInvalidEmail    = "INVALID_EMAIL"
-	ErrCodeInvalidPassword = "INVALID_PASSWORD"
-	ErrCodeInvalidInput    = "INVALID_INPUT"
-	ErrCodeMissingField    = "MISSING_FIELD"
+	ErrCodeInvalidInput = "INVALID_INPUT"
+	ErrCodeMissingField = "MISSING_FIELD"
 
-	ErrCodeInvalidCredentials = "INVALID_CREDENTIALS"
-	ErrCodeInvalidToken       = "INVALID_TOKEN"
-	ErrCodeTokenExpired       = "TOKEN_EXPIRED"
-	ErrCodeTokenRevoked       = "TOKEN_REVOKED"
-	ErrCodeSessionExpired     = "SESSION_EXPIRED"
-	ErrCodeSessionRevoked     = "SESSION_REVOKED"
+	ErrCodeEntryNotFound      = "ENTRY_NOT_FOUND"
+	ErrCodeEntryAlreadyExists = "ENTRY_ALREADY_EXISTS"
+	ErrCodeUnauthorized       = "UNAUTHORIZED"
 
-	ErrCodeEmailAlreadyExists = "EMAIL_ALREADY_EXISTS"
+	ErrCodeInvalidMediaID   = "INVALID_MEDIA_ID"
+	ErrCodeInvalidMediaType = "INVALID_MEDIA_TYPE"
+	ErrCodeInvalidStatus    = "INVALID_STATUS"
+	ErrCodeInvalidRating    = "INVALID_RATING"
 
-	ErrCodeRateLimitExceeded = "RATE_LIMIT_EXCEEDED"
-
-	ErrCodeInternal           = "INTERNAL_ERROR"
-	ErrCodeServiceUnavailable = "SERVICE_UNAVAILABLE"
+	ErrCodeInternal = "INTERNAL_ERROR"
 )
 
+// ErrorDetail содержит детали ошибки для frontend
 type ErrorDetail struct {
 	Code    string            `json:"code"`
 	Message string            `json:"message"`

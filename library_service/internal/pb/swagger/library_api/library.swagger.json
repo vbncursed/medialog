@@ -1,0 +1,441 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "library_api/library.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "LibraryService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/library/entries": {
+      "post": {
+        "summary": "CreateEntry создаёт новую запись в библиотеке пользователя.",
+        "operationId": "LibraryService_CreateEntry",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1EntryResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateEntryRequest"
+            }
+          }
+        ],
+        "tags": [
+          "LibraryService"
+        ]
+      }
+    },
+    "/v1/library/entries/list": {
+      "post": {
+        "summary": "ListEntries возвращает список записей с фильтрацией, сортировкой и пагинацией.",
+        "operationId": "LibraryService_ListEntries",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListEntriesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListEntriesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "LibraryService"
+        ]
+      }
+    },
+    "/v1/library/entries/{entryId}": {
+      "get": {
+        "summary": "GetEntry возвращает запись по ID (с проверкой владельца).\nuser_id извлекается из токена авторизации.",
+        "operationId": "LibraryService_GetEntry",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1EntryResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "LibraryService"
+        ]
+      },
+      "delete": {
+        "summary": "DeleteEntry удаляет запись из библиотеки пользователя.\nuser_id извлекается из токена авторизации.",
+        "operationId": "LibraryService_DeleteEntry",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteEntryResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "LibraryService"
+        ]
+      },
+      "put": {
+        "summary": "UpdateEntry обновляет существующую запись (статус, оценка, заметка, теги, даты).",
+        "operationId": "LibraryService_UpdateEntry",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1EntryResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LibraryServiceUpdateEntryBody"
+            }
+          }
+        ],
+        "tags": [
+          "LibraryService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "LibraryServiceUpdateEntryBody": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/v1EntryStatus"
+        },
+        "rating": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "review": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "finishedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1CreateEntryRequest": {
+      "type": "object",
+      "properties": {
+        "mediaId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "type": {
+          "$ref": "#/definitions/v1MediaType"
+        },
+        "status": {
+          "$ref": "#/definitions/v1EntryStatus"
+        },
+        "rating": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "review": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "finishedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "v1DeleteEntryResponse": {
+      "type": "object"
+    },
+    "v1Entry": {
+      "type": "object",
+      "properties": {
+        "entryId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "mediaId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "type": {
+          "$ref": "#/definitions/v1MediaType"
+        },
+        "status": {
+          "$ref": "#/definitions/v1EntryStatus"
+        },
+        "rating": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "review": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "finishedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "v1EntryResponse": {
+      "type": "object",
+      "properties": {
+        "entry": {
+          "$ref": "#/definitions/v1Entry"
+        }
+      }
+    },
+    "v1EntryStatus": {
+      "type": "string",
+      "enum": [
+        "ENTRY_STATUS_UNSPECIFIED",
+        "ENTRY_STATUS_PLANNED",
+        "ENTRY_STATUS_IN_PROGRESS",
+        "ENTRY_STATUS_DONE"
+      ],
+      "default": "ENTRY_STATUS_UNSPECIFIED"
+    },
+    "v1ListEntriesRequest": {
+      "type": "object",
+      "properties": {
+        "types": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1MediaType"
+          }
+        },
+        "statuses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1EntryStatus"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "minRating": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "maxRating": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "finishedFrom": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "finishedTo": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sortBy": {
+          "type": "string"
+        },
+        "sortOrder": {
+          "type": "string"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v1ListEntriesResponse": {
+      "type": "object",
+      "properties": {
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Entry"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "totalPages": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v1MediaType": {
+      "type": "string",
+      "enum": [
+        "MEDIA_TYPE_UNSPECIFIED",
+        "MEDIA_TYPE_MOVIE",
+        "MEDIA_TYPE_TV",
+        "MEDIA_TYPE_BOOK"
+      ],
+      "default": "MEDIA_TYPE_UNSPECIFIED"
+    }
+  }
+}

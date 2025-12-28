@@ -34,6 +34,9 @@ func (a *AuthServiceAPI) Login(ctx context.Context, req *models.LoginRequest) (*
 		case errors.Is(err, auth_service.ErrInvalidCredentials):
 			return nil, newError(codes.Unauthenticated, ErrCodeInvalidCredentials, "Invalid email or password.")
 		default:
+			if isDatabaseError(err) {
+				return nil, newError(codes.Unavailable, ErrCodeServiceUnavailable, "Service temporarily unavailable. Please try again later.")
+			}
 			return nil, newError(codes.Internal, ErrCodeInternal, "An internal error occurred. Please try again later.")
 		}
 	}
