@@ -1,11 +1,17 @@
 package auth_service
 
 import (
+	"errors"
 	"net/mail"
 	"strings"
 	"unicode"
 
-	"github.com/vbncursed/medialog/auth-service/internal/models"
+	"github.com/vbncursed/medialog/auth_service/internal/models"
+)
+
+var (
+	ErrInvalidEmail    = errors.New("invalid email")
+	ErrInvalidPassword = errors.New("invalid password")
 )
 
 func validateEmail(email string) bool {
@@ -56,9 +62,22 @@ func validatePassword(password string) bool {
 
 func normalizeAndValidateAuthInput(in models.AuthInput) (models.AuthInput, error) {
 	in.Email = strings.TrimSpace(strings.ToLower(in.Email))
-	if !validateEmail(in.Email) || !validatePassword(in.Password) {
+
+	emailValid := validateEmail(in.Email)
+	passwordValid := validatePassword(in.Password)
+
+	// Если оба поля неверны, возвращаем общую ошибку
+	if !emailValid && !passwordValid {
 		return models.AuthInput{}, ErrInvalidArgument
 	}
+	// Если только email неверен
+	if !emailValid {
+		return models.AuthInput{}, ErrInvalidEmail
+	}
+	// Если только password неверен
+	if !passwordValid {
+		return models.AuthInput{}, ErrInvalidPassword
+	}
+
 	return in, nil
 }
-

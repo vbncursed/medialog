@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/vbncursed/medialog/auth-service/internal/models"
-	"github.com/vbncursed/medialog/auth-service/internal/storage/auth_storage"
+	"github.com/vbncursed/medialog/auth_service/internal/models"
+	"github.com/vbncursed/medialog/auth_service/internal/storage/auth_storage"
 )
 
 func (s *AuthService) Register(ctx context.Context, in models.RegisterInput) (*AuthInfo, error) {

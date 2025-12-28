@@ -24,6 +24,11 @@ var incrExpireScript = redis.NewScript(`
 local current = redis.call("INCR", KEYS[1])
 if current == 1 then
   redis.call("EXPIRE", KEYS[1], ARGV[1])
+else
+  local ttl = redis.call("TTL", KEYS[1])
+  if ttl < 0 then
+    redis.call("EXPIRE", KEYS[1], ARGV[1])
+  end
 end
 return current
 `)
@@ -66,9 +71,13 @@ func (l *redisRateLimiter) Allow(ctx context.Context, key string) bool {
 
 	n, err := incrExpireScript.Run(execCtx, l.rdb, []string{redisKey}, ttlSeconds).Int64()
 	if err != nil {
-		slog.Warn("rate limit redis error (fail-closed)", "err", err, "key", redisKey)
+		slog.Warn("rate limit redis error (fail-closed)", "err", err, "key", redisKey, "kind", l.kind)
 		return false
 	}
 
-	return n <= l.limit
+	allowed := n <= l.limit
+	if !allowed {
+		slog.Info("rate limit exceeded", "key", redisKey, "count", n, "limit", l.limit, "kind", l.kind)
+	}
+	return allowed
 }

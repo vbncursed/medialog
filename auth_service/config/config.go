@@ -36,6 +36,7 @@ type AuthConfig struct {
 	RefreshTTLSeconds          int64  `yaml:"refresh_ttl_seconds"`
 	RateLimitLoginPerMinute    int    `yaml:"rate_limit_login_per_minute"`
 	RateLimitRegisterPerMinute int    `yaml:"rate_limit_register_per_minute"`
+	RateLimitRefreshPerMinute  int    `yaml:"rate_limit_refresh_per_minute"`
 }
 
 type ServerConfig struct {

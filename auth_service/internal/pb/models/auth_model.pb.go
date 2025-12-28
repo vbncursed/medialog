@@ -374,7 +374,7 @@ const file_models_auth_model_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12!\n" +
 	"\faccess_token\x18\x02 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\"\x10\n" +
-	"\x0eLogoutResponseB?Z=github.com/vbncursed/medialog/auth-service/internal/pb/modelsb\x06proto3"
+	"\x0eLogoutResponseB?Z=github.com/vbncursed/medialog/auth_service/internal/pb/modelsb\x06proto3"
 
 var (
 	file_models_auth_model_proto_rawDescOnce sync.Once

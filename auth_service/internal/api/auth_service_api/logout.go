@@ -4,10 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/vbncursed/medialog/auth-service/internal/pb/models"
-	"github.com/vbncursed/medialog/auth-service/internal/services/auth_service"
+	"github.com/vbncursed/medialog/auth_service/internal/pb/models"
+	"github.com/vbncursed/medialog/auth_service/internal/services/auth_service"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 func (a *AuthServiceAPI) Logout(ctx context.Context, req *models.LogoutRequest) (*models.LogoutResponse, error) {
@@ -15,11 +14,11 @@ func (a *AuthServiceAPI) Logout(ctx context.Context, req *models.LogoutRequest) 
 	if err != nil {
 		switch {
 		case errors.Is(err, auth_service.ErrInvalidArgument):
-			return nil, status.Error(codes.InvalidArgument, "refresh_token required")
+			return nil, newFieldError(codes.InvalidArgument, ErrCodeMissingField, "refresh_token", "Refresh token is required.")
 		case errors.Is(err, auth_service.ErrInvalidRefreshToken):
-			return nil, status.Error(codes.Unauthenticated, "invalid refresh token")
+			return nil, newError(codes.Unauthenticated, ErrCodeInvalidToken, "Invalid refresh token.")
 		default:
-			return nil, status.Error(codes.Internal, "internal error")
+			return nil, newError(codes.Internal, ErrCodeInternal, "An internal error occurred. Please try again later.")
 		}
 	}
 

@@ -6,8 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/vbncursed/medialog/auth-service/internal/models"
-	"github.com/vbncursed/medialog/auth-service/internal/storage/auth_storage"
+	"github.com/vbncursed/medialog/auth_service/internal/models"
+)
+
+var (
+	ErrSessionNotFound = errors.New("session not found")
 )
 
 func (s *AuthService) Refresh(ctx context.Context, in models.RefreshInput) (*AuthInfo, error) {
@@ -21,9 +24,9 @@ func (s *AuthService) Refresh(ctx context.Context, in models.RefreshInput) (*Aut
 		return nil, ErrInvalidRefreshToken
 	}
 
-	sess, err := s.authStorage.GetSessionByRefreshHash(ctx, refreshHash)
+	sess, err := s.sessionStorage.GetSessionByRefreshHash(ctx, refreshHash)
 	if err != nil {
-		if errors.Is(err, auth_storage.ErrSessionNotFound) {
+		if errors.Is(err, ErrSessionNotFound) {
 			return nil, ErrInvalidRefreshToken
 		}
 		return nil, err
@@ -35,8 +38,7 @@ func (s *AuthService) Refresh(ctx context.Context, in models.RefreshInput) (*Aut
 		return nil, ErrSessionExpired
 	}
 
-	now := time.Now()
-	if err := s.authStorage.RevokeSessionByID(ctx, sess.ID, now); err != nil {
+	if err := s.sessionStorage.RevokeSessionByRefreshHash(ctx, refreshHash); err != nil {
 		return nil, err
 	}
 
@@ -54,16 +56,15 @@ func (s *AuthService) Logout(ctx context.Context, refreshToken string) error {
 		return ErrInvalidRefreshToken
 	}
 
-	sess, err := s.authStorage.GetSessionByRefreshHash(ctx, refreshHash)
+	_, err = s.sessionStorage.GetSessionByRefreshHash(ctx, refreshHash)
 	if err != nil {
-		if errors.Is(err, auth_storage.ErrSessionNotFound) {
+		if errors.Is(err, ErrSessionNotFound) {
 			return ErrInvalidRefreshToken
 		}
 		return err
 	}
 
-	now := time.Now()
-	if err := s.authStorage.RevokeSessionByID(ctx, sess.ID, now); err != nil {
+	if err := s.sessionStorage.RevokeSessionByRefreshHash(ctx, refreshHash); err != nil {
 		return err
 	}
 
@@ -81,16 +82,15 @@ func (s *AuthService) LogoutAll(ctx context.Context, refreshToken string) error 
 		return ErrInvalidRefreshToken
 	}
 
-	sess, err := s.authStorage.GetSessionByRefreshHash(ctx, refreshHash)
+	sess, err := s.sessionStorage.GetSessionByRefreshHash(ctx, refreshHash)
 	if err != nil {
-		if errors.Is(err, auth_storage.ErrSessionNotFound) {
+		if errors.Is(err, ErrSessionNotFound) {
 			return ErrInvalidRefreshToken
 		}
 		return err
 	}
 
-	now := time.Now()
-	if err := s.authStorage.RevokeAllSessionsByUserID(ctx, sess.UserID, now); err != nil {
+	if err := s.sessionStorage.RevokeAllSessionsByUserID(ctx, sess.UserID); err != nil {
 		return err
 	}
 

@@ -7,7 +7,7 @@
 package auth_api
 
 import (
-	models "github.com/vbncursed/medialog/auth-service/internal/pb/models"
+	models "github.com/vbncursed/medialog/auth_service/internal/pb/models"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -32,7 +32,7 @@ const file_auth_api_auth_proto_rawDesc = "" +
 	"\x05Login\x12\x1c.auth.models.v1.LoginRequest\x1a\x1c.auth.models.v1.AuthResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/auth/login\x12d\n" +
 	"\aRefresh\x12\x1e.auth.models.v1.RefreshRequest\x1a\x1c.auth.models.v1.AuthResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/auth/refresh\x12c\n" +
 	"\x06Logout\x12\x1d.auth.models.v1.LogoutRequest\x1a\x1e.auth.models.v1.LogoutResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/auth/logout\x12m\n" +
-	"\tLogoutAll\x12 .auth.models.v1.LogoutAllRequest\x1a\x1e.auth.models.v1.LogoutResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/auth/logout-allBAZ?github.com/vbncursed/medialog/auth-service/internal/pb/auth_apib\x06proto3"
+	"\tLogoutAll\x12 .auth.models.v1.LogoutAllRequest\x1a\x1e.auth.models.v1.LogoutResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/auth/logout-allBAZ?github.com/vbncursed/medialog/auth_service/internal/pb/auth_apib\x06proto3"
 
 var file_auth_api_auth_proto_goTypes = []any{
 	(*models.RegisterRequest)(nil),  // 0: auth.models.v1.RegisterRequest

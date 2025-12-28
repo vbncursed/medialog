@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/vbncursed/medialog/auth-service/config"
-	"github.com/vbncursed/medialog/auth-service/internal/bootstrap"
+	"github.com/vbncursed/medialog/auth_service/config"
+	"github.com/vbncursed/medialog/auth_service/internal/bootstrap"
 )
 
 func main() {
@@ -18,9 +18,10 @@ func main() {
 
 	redisClient := bootstrap.InitRedis(cfg)
 	authStorage := bootstrap.InitPGStorage(cfg)
-	authService := bootstrap.InitAuthService(authStorage, cfg)
-	loginLimiter, registerLimiter := bootstrap.InitAuthRateLimiters(redisClient, cfg.Auth.RateLimitLoginPerMinute, cfg.Auth.RateLimitRegisterPerMinute)
-	authAPI := bootstrap.InitAuthServiceAPI(authService, loginLimiter, registerLimiter)
+	sessionStorage := bootstrap.InitSessionStorage(redisClient)
+	authService := bootstrap.InitAuthService(authStorage, sessionStorage, cfg)
+	loginLimiter, registerLimiter, refreshLimiter := bootstrap.InitAuthRateLimiters(redisClient, cfg)
+	authAPI := bootstrap.InitAuthServiceAPI(authService, loginLimiter, registerLimiter, refreshLimiter)
 
 	bootstrap.AppRun(*authAPI)
 }

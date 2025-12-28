@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/vbncursed/medialog/auth-service/config"
+	"github.com/vbncursed/medialog/auth_service/config"
 )
 
 func InitRedis(cfg *config.Config) *redis.Client {

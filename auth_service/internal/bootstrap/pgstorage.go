@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/vbncursed/medialog/auth-service/config"
-	"github.com/vbncursed/medialog/auth-service/internal/storage/auth_storage"
+	"github.com/vbncursed/medialog/auth_service/config"
+	"github.com/vbncursed/medialog/auth_service/internal/storage/auth_storage"
 )
 
 func InitPGStorage(cfg *config.Config) *auth_storage.AuthStorage {

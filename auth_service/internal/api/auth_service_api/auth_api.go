@@ -3,9 +3,9 @@ package auth_service_api
 import (
 	"context"
 
-	"github.com/vbncursed/medialog/auth-service/internal/models"
-	"github.com/vbncursed/medialog/auth-service/internal/pb/auth_api"
-	"github.com/vbncursed/medialog/auth-service/internal/services/auth_service"
+	"github.com/vbncursed/medialog/auth_service/internal/models"
+	"github.com/vbncursed/medialog/auth_service/internal/pb/auth_api"
+	"github.com/vbncursed/medialog/auth_service/internal/services/auth_service"
 )
 
 type authService interface {
@@ -16,28 +16,33 @@ type authService interface {
 	LogoutAll(ctx context.Context, refreshToken string) error
 }
 
-// AuthServiceAPI реализует grpc AuthServiceServer.
+// AuthServiceAPI реализует grpc AuthServiceServer
 type AuthServiceAPI struct {
 	auth_api.UnimplementedAuthServiceServer
 	authService     authService
 	loginLimiter    RateLimiter
 	registerLimiter RateLimiter
+	refreshLimiter  RateLimiter
 }
 
 type denyAllLimiter struct{}
 
 func (denyAllLimiter) Allow(ctx context.Context, key string) bool { return false }
 
-func NewAuthServiceAPI(authService *auth_service.AuthService, loginLimiter, registerLimiter RateLimiter) *AuthServiceAPI {
+func NewAuthServiceAPI(authService *auth_service.AuthService, loginLimiter, registerLimiter, refreshLimiter RateLimiter) *AuthServiceAPI {
 	if loginLimiter == nil {
 		loginLimiter = denyAllLimiter{}
 	}
 	if registerLimiter == nil {
 		registerLimiter = denyAllLimiter{}
 	}
+	if refreshLimiter == nil {
+		refreshLimiter = denyAllLimiter{}
+	}
 	return &AuthServiceAPI{
 		authService:     authService,
 		loginLimiter:    loginLimiter,
 		registerLimiter: registerLimiter,
+		refreshLimiter:  refreshLimiter,
 	}
 }

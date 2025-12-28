@@ -9,8 +9,7 @@ import (
 	"time"
 
 	mock "github.com/stretchr/testify/mock"
-	"github.com/vbncursed/medialog/auth-service/internal/models"
-	"github.com/vbncursed/medialog/auth-service/internal/services/auth_service"
+	"github.com/vbncursed/medialog/auth_service/internal/models"
 )
 
 // NewAuthStorage creates a new instance of AuthStorage. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -38,96 +37,6 @@ type AuthStorage_Expecter struct {
 
 func (_m *AuthStorage) EXPECT() *AuthStorage_Expecter {
 	return &AuthStorage_Expecter{mock: &_m.Mock}
-}
-
-// CreateSession provides a mock function for the type AuthStorage
-func (_mock *AuthStorage) CreateSession(ctx context.Context, userID uint64, refreshHash []byte, expiresAt time.Time, userAgent string, ip string) (uint64, error) {
-	ret := _mock.Called(ctx, userID, refreshHash, expiresAt, userAgent, ip)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CreateSession")
-	}
-
-	var r0 uint64
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uint64, []byte, time.Time, string, string) (uint64, error)); ok {
-		return returnFunc(ctx, userID, refreshHash, expiresAt, userAgent, ip)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uint64, []byte, time.Time, string, string) uint64); ok {
-		r0 = returnFunc(ctx, userID, refreshHash, expiresAt, userAgent, ip)
-	} else {
-		r0 = ret.Get(0).(uint64)
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, uint64, []byte, time.Time, string, string) error); ok {
-		r1 = returnFunc(ctx, userID, refreshHash, expiresAt, userAgent, ip)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// AuthStorage_CreateSession_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateSession'
-type AuthStorage_CreateSession_Call struct {
-	*mock.Call
-}
-
-// CreateSession is a helper method to define mock.On call
-//   - ctx context.Context
-//   - userID uint64
-//   - refreshHash []byte
-//   - expiresAt time.Time
-//   - userAgent string
-//   - ip string
-func (_e *AuthStorage_Expecter) CreateSession(ctx interface{}, userID interface{}, refreshHash interface{}, expiresAt interface{}, userAgent interface{}, ip interface{}) *AuthStorage_CreateSession_Call {
-	return &AuthStorage_CreateSession_Call{Call: _e.mock.On("CreateSession", ctx, userID, refreshHash, expiresAt, userAgent, ip)}
-}
-
-func (_c *AuthStorage_CreateSession_Call) Run(run func(ctx context.Context, userID uint64, refreshHash []byte, expiresAt time.Time, userAgent string, ip string)) *AuthStorage_CreateSession_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 uint64
-		if args[1] != nil {
-			arg1 = args[1].(uint64)
-		}
-		var arg2 []byte
-		if args[2] != nil {
-			arg2 = args[2].([]byte)
-		}
-		var arg3 time.Time
-		if args[3] != nil {
-			arg3 = args[3].(time.Time)
-		}
-		var arg4 string
-		if args[4] != nil {
-			arg4 = args[4].(string)
-		}
-		var arg5 string
-		if args[5] != nil {
-			arg5 = args[5].(string)
-		}
-		run(
-			arg0,
-			arg1,
-			arg2,
-			arg3,
-			arg4,
-			arg5,
-		)
-	})
-	return _c
-}
-
-func (_c *AuthStorage_CreateSession_Call) Return(v uint64, err error) *AuthStorage_CreateSession_Call {
-	_c.Call.Return(v, err)
-	return _c
-}
-
-func (_c *AuthStorage_CreateSession_Call) RunAndReturn(run func(ctx context.Context, userID uint64, refreshHash []byte, expiresAt time.Time, userAgent string, ip string) (uint64, error)) *AuthStorage_CreateSession_Call {
-	_c.Call.Return(run)
-	return _c
 }
 
 // CreateUser provides a mock function for the type AuthStorage
@@ -202,74 +111,6 @@ func (_c *AuthStorage_CreateUser_Call) RunAndReturn(run func(ctx context.Context
 	return _c
 }
 
-// GetSessionByRefreshHash provides a mock function for the type AuthStorage
-func (_mock *AuthStorage) GetSessionByRefreshHash(ctx context.Context, refreshHash []byte) (*models.Session, error) {
-	ret := _mock.Called(ctx, refreshHash)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetSessionByRefreshHash")
-	}
-
-	var r0 *models.Session
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, []byte) (*models.Session, error)); ok {
-		return returnFunc(ctx, refreshHash)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, []byte) *models.Session); ok {
-		r0 = returnFunc(ctx, refreshHash)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Session)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, []byte) error); ok {
-		r1 = returnFunc(ctx, refreshHash)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// AuthStorage_GetSessionByRefreshHash_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSessionByRefreshHash'
-type AuthStorage_GetSessionByRefreshHash_Call struct {
-	*mock.Call
-}
-
-// GetSessionByRefreshHash is a helper method to define mock.On call
-//   - ctx context.Context
-//   - refreshHash []byte
-func (_e *AuthStorage_Expecter) GetSessionByRefreshHash(ctx interface{}, refreshHash interface{}) *AuthStorage_GetSessionByRefreshHash_Call {
-	return &AuthStorage_GetSessionByRefreshHash_Call{Call: _e.mock.On("GetSessionByRefreshHash", ctx, refreshHash)}
-}
-
-func (_c *AuthStorage_GetSessionByRefreshHash_Call) Run(run func(ctx context.Context, refreshHash []byte)) *AuthStorage_GetSessionByRefreshHash_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 []byte
-		if args[1] != nil {
-			arg1 = args[1].([]byte)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *AuthStorage_GetSessionByRefreshHash_Call) Return(session *models.Session, err error) *AuthStorage_GetSessionByRefreshHash_Call {
-	_c.Call.Return(session, err)
-	return _c
-}
-
-func (_c *AuthStorage_GetSessionByRefreshHash_Call) RunAndReturn(run func(ctx context.Context, refreshHash []byte) (*models.Session, error)) *AuthStorage_GetSessionByRefreshHash_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetUserByEmail provides a mock function for the type AuthStorage
 func (_mock *AuthStorage) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	ret := _mock.Called(ctx, email)
@@ -338,139 +179,13 @@ func (_c *AuthStorage_GetUserByEmail_Call) RunAndReturn(run func(ctx context.Con
 	return _c
 }
 
-// RevokeAllSessionsByUserID provides a mock function for the type AuthStorage
-func (_mock *AuthStorage) RevokeAllSessionsByUserID(ctx context.Context, userID uint64, revokedAt time.Time) error {
-	ret := _mock.Called(ctx, userID, revokedAt)
-
-	if len(ret) == 0 {
-		panic("no return value specified for RevokeAllSessionsByUserID")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uint64, time.Time) error); ok {
-		r0 = returnFunc(ctx, userID, revokedAt)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// AuthStorage_RevokeAllSessionsByUserID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RevokeAllSessionsByUserID'
-type AuthStorage_RevokeAllSessionsByUserID_Call struct {
-	*mock.Call
-}
-
-// RevokeAllSessionsByUserID is a helper method to define mock.On call
-//   - ctx context.Context
-//   - userID uint64
-//   - revokedAt time.Time
-func (_e *AuthStorage_Expecter) RevokeAllSessionsByUserID(ctx interface{}, userID interface{}, revokedAt interface{}) *AuthStorage_RevokeAllSessionsByUserID_Call {
-	return &AuthStorage_RevokeAllSessionsByUserID_Call{Call: _e.mock.On("RevokeAllSessionsByUserID", ctx, userID, revokedAt)}
-}
-
-func (_c *AuthStorage_RevokeAllSessionsByUserID_Call) Run(run func(ctx context.Context, userID uint64, revokedAt time.Time)) *AuthStorage_RevokeAllSessionsByUserID_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 uint64
-		if args[1] != nil {
-			arg1 = args[1].(uint64)
-		}
-		var arg2 time.Time
-		if args[2] != nil {
-			arg2 = args[2].(time.Time)
-		}
-		run(
-			arg0,
-			arg1,
-			arg2,
-		)
-	})
-	return _c
-}
-
-func (_c *AuthStorage_RevokeAllSessionsByUserID_Call) Return(err error) *AuthStorage_RevokeAllSessionsByUserID_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *AuthStorage_RevokeAllSessionsByUserID_Call) RunAndReturn(run func(ctx context.Context, userID uint64, revokedAt time.Time) error) *AuthStorage_RevokeAllSessionsByUserID_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// RevokeSessionByID provides a mock function for the type AuthStorage
-func (_mock *AuthStorage) RevokeSessionByID(ctx context.Context, sessionID uint64, revokedAt time.Time) error {
-	ret := _mock.Called(ctx, sessionID, revokedAt)
-
-	if len(ret) == 0 {
-		panic("no return value specified for RevokeSessionByID")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uint64, time.Time) error); ok {
-		r0 = returnFunc(ctx, sessionID, revokedAt)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// AuthStorage_RevokeSessionByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RevokeSessionByID'
-type AuthStorage_RevokeSessionByID_Call struct {
-	*mock.Call
-}
-
-// RevokeSessionByID is a helper method to define mock.On call
-//   - ctx context.Context
-//   - sessionID uint64
-//   - revokedAt time.Time
-func (_e *AuthStorage_Expecter) RevokeSessionByID(ctx interface{}, sessionID interface{}, revokedAt interface{}) *AuthStorage_RevokeSessionByID_Call {
-	return &AuthStorage_RevokeSessionByID_Call{Call: _e.mock.On("RevokeSessionByID", ctx, sessionID, revokedAt)}
-}
-
-func (_c *AuthStorage_RevokeSessionByID_Call) Run(run func(ctx context.Context, sessionID uint64, revokedAt time.Time)) *AuthStorage_RevokeSessionByID_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 uint64
-		if args[1] != nil {
-			arg1 = args[1].(uint64)
-		}
-		var arg2 time.Time
-		if args[2] != nil {
-			arg2 = args[2].(time.Time)
-		}
-		run(
-			arg0,
-			arg1,
-			arg2,
-		)
-	})
-	return _c
-}
-
-func (_c *AuthStorage_RevokeSessionByID_Call) Return(err error) *AuthStorage_RevokeSessionByID_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *AuthStorage_RevokeSessionByID_Call) RunAndReturn(run func(ctx context.Context, sessionID uint64, revokedAt time.Time) error) *AuthStorage_RevokeSessionByID_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// NewService creates a new instance of Service. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// NewSessionStorage creates a new instance of SessionStorage. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
-func NewService(t interface {
+func NewSessionStorage(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *Service {
-	mock := &Service{}
+}) *SessionStorage {
+	mock := &SessionStorage{}
 	mock.Mock.Test(t)
 
 	t.Cleanup(func() { mock.AssertExpectations(t) })
@@ -478,125 +193,149 @@ func NewService(t interface {
 	return mock
 }
 
-// Service is an autogenerated mock type for the Service type
-type Service struct {
+// SessionStorage is an autogenerated mock type for the SessionStorage type
+type SessionStorage struct {
 	mock.Mock
 }
 
-type Service_Expecter struct {
+type SessionStorage_Expecter struct {
 	mock *mock.Mock
 }
 
-func (_m *Service) EXPECT() *Service_Expecter {
-	return &Service_Expecter{mock: &_m.Mock}
+func (_m *SessionStorage) EXPECT() *SessionStorage_Expecter {
+	return &SessionStorage_Expecter{mock: &_m.Mock}
 }
 
-// Login provides a mock function for the type Service
-func (_mock *Service) Login(ctx context.Context, in models.LoginInput) (*auth_service.AuthInfo, error) {
-	ret := _mock.Called(ctx, in)
+// CreateSession provides a mock function for the type SessionStorage
+func (_mock *SessionStorage) CreateSession(ctx context.Context, userID uint64, refreshHash []byte, expiresAt time.Time, userAgent string, ip string) error {
+	ret := _mock.Called(ctx, userID, refreshHash, expiresAt, userAgent, ip)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Login")
-	}
-
-	var r0 *auth_service.AuthInfo
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, models.LoginInput) (*auth_service.AuthInfo, error)); ok {
-		return returnFunc(ctx, in)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, models.LoginInput) *auth_service.AuthInfo); ok {
-		r0 = returnFunc(ctx, in)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*auth_service.AuthInfo)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, models.LoginInput) error); ok {
-		r1 = returnFunc(ctx, in)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// Service_Login_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Login'
-type Service_Login_Call struct {
-	*mock.Call
-}
-
-// Login is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in models.LoginInput
-func (_e *Service_Expecter) Login(ctx interface{}, in interface{}) *Service_Login_Call {
-	return &Service_Login_Call{Call: _e.mock.On("Login", ctx, in)}
-}
-
-func (_c *Service_Login_Call) Run(run func(ctx context.Context, in models.LoginInput)) *Service_Login_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 models.LoginInput
-		if args[1] != nil {
-			arg1 = args[1].(models.LoginInput)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *Service_Login_Call) Return(authInfo *auth_service.AuthInfo, err error) *Service_Login_Call {
-	_c.Call.Return(authInfo, err)
-	return _c
-}
-
-func (_c *Service_Login_Call) RunAndReturn(run func(ctx context.Context, in models.LoginInput) (*auth_service.AuthInfo, error)) *Service_Login_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Logout provides a mock function for the type Service
-func (_mock *Service) Logout(ctx context.Context, refreshToken string) error {
-	ret := _mock.Called(ctx, refreshToken)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Logout")
+		panic("no return value specified for CreateSession")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
-		r0 = returnFunc(ctx, refreshToken)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uint64, []byte, time.Time, string, string) error); ok {
+		r0 = returnFunc(ctx, userID, refreshHash, expiresAt, userAgent, ip)
 	} else {
 		r0 = ret.Error(0)
 	}
 	return r0
 }
 
-// Service_Logout_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Logout'
-type Service_Logout_Call struct {
+// SessionStorage_CreateSession_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateSession'
+type SessionStorage_CreateSession_Call struct {
 	*mock.Call
 }
 
-// Logout is a helper method to define mock.On call
+// CreateSession is a helper method to define mock.On call
 //   - ctx context.Context
-//   - refreshToken string
-func (_e *Service_Expecter) Logout(ctx interface{}, refreshToken interface{}) *Service_Logout_Call {
-	return &Service_Logout_Call{Call: _e.mock.On("Logout", ctx, refreshToken)}
+//   - userID uint64
+//   - refreshHash []byte
+//   - expiresAt time.Time
+//   - userAgent string
+//   - ip string
+func (_e *SessionStorage_Expecter) CreateSession(ctx interface{}, userID interface{}, refreshHash interface{}, expiresAt interface{}, userAgent interface{}, ip interface{}) *SessionStorage_CreateSession_Call {
+	return &SessionStorage_CreateSession_Call{Call: _e.mock.On("CreateSession", ctx, userID, refreshHash, expiresAt, userAgent, ip)}
 }
 
-func (_c *Service_Logout_Call) Run(run func(ctx context.Context, refreshToken string)) *Service_Logout_Call {
+func (_c *SessionStorage_CreateSession_Call) Run(run func(ctx context.Context, userID uint64, refreshHash []byte, expiresAt time.Time, userAgent string, ip string)) *SessionStorage_CreateSession_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 string
+		var arg1 uint64
 		if args[1] != nil {
-			arg1 = args[1].(string)
+			arg1 = args[1].(uint64)
+		}
+		var arg2 []byte
+		if args[2] != nil {
+			arg2 = args[2].([]byte)
+		}
+		var arg3 time.Time
+		if args[3] != nil {
+			arg3 = args[3].(time.Time)
+		}
+		var arg4 string
+		if args[4] != nil {
+			arg4 = args[4].(string)
+		}
+		var arg5 string
+		if args[5] != nil {
+			arg5 = args[5].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+			arg5,
+		)
+	})
+	return _c
+}
+
+func (_c *SessionStorage_CreateSession_Call) Return(err error) *SessionStorage_CreateSession_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *SessionStorage_CreateSession_Call) RunAndReturn(run func(ctx context.Context, userID uint64, refreshHash []byte, expiresAt time.Time, userAgent string, ip string) error) *SessionStorage_CreateSession_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetSessionByRefreshHash provides a mock function for the type SessionStorage
+func (_mock *SessionStorage) GetSessionByRefreshHash(ctx context.Context, refreshHash []byte) (*models.Session, error) {
+	ret := _mock.Called(ctx, refreshHash)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetSessionByRefreshHash")
+	}
+
+	var r0 *models.Session
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []byte) (*models.Session, error)); ok {
+		return returnFunc(ctx, refreshHash)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []byte) *models.Session); ok {
+		r0 = returnFunc(ctx, refreshHash)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Session)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, []byte) error); ok {
+		r1 = returnFunc(ctx, refreshHash)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// SessionStorage_GetSessionByRefreshHash_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSessionByRefreshHash'
+type SessionStorage_GetSessionByRefreshHash_Call struct {
+	*mock.Call
+}
+
+// GetSessionByRefreshHash is a helper method to define mock.On call
+//   - ctx context.Context
+//   - refreshHash []byte
+func (_e *SessionStorage_Expecter) GetSessionByRefreshHash(ctx interface{}, refreshHash interface{}) *SessionStorage_GetSessionByRefreshHash_Call {
+	return &SessionStorage_GetSessionByRefreshHash_Call{Call: _e.mock.On("GetSessionByRefreshHash", ctx, refreshHash)}
+}
+
+func (_c *SessionStorage_GetSessionByRefreshHash_Call) Run(run func(ctx context.Context, refreshHash []byte)) *SessionStorage_GetSessionByRefreshHash_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []byte
+		if args[1] != nil {
+			arg1 = args[1].([]byte)
 		}
 		run(
 			arg0,
@@ -606,54 +345,54 @@ func (_c *Service_Logout_Call) Run(run func(ctx context.Context, refreshToken st
 	return _c
 }
 
-func (_c *Service_Logout_Call) Return(err error) *Service_Logout_Call {
-	_c.Call.Return(err)
+func (_c *SessionStorage_GetSessionByRefreshHash_Call) Return(session *models.Session, err error) *SessionStorage_GetSessionByRefreshHash_Call {
+	_c.Call.Return(session, err)
 	return _c
 }
 
-func (_c *Service_Logout_Call) RunAndReturn(run func(ctx context.Context, refreshToken string) error) *Service_Logout_Call {
+func (_c *SessionStorage_GetSessionByRefreshHash_Call) RunAndReturn(run func(ctx context.Context, refreshHash []byte) (*models.Session, error)) *SessionStorage_GetSessionByRefreshHash_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// LogoutAll provides a mock function for the type Service
-func (_mock *Service) LogoutAll(ctx context.Context, refreshToken string) error {
-	ret := _mock.Called(ctx, refreshToken)
+// RevokeAllSessionsByUserID provides a mock function for the type SessionStorage
+func (_mock *SessionStorage) RevokeAllSessionsByUserID(ctx context.Context, userID uint64) error {
+	ret := _mock.Called(ctx, userID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for LogoutAll")
+		panic("no return value specified for RevokeAllSessionsByUserID")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
-		r0 = returnFunc(ctx, refreshToken)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uint64) error); ok {
+		r0 = returnFunc(ctx, userID)
 	} else {
 		r0 = ret.Error(0)
 	}
 	return r0
 }
 
-// Service_LogoutAll_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LogoutAll'
-type Service_LogoutAll_Call struct {
+// SessionStorage_RevokeAllSessionsByUserID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RevokeAllSessionsByUserID'
+type SessionStorage_RevokeAllSessionsByUserID_Call struct {
 	*mock.Call
 }
 
-// LogoutAll is a helper method to define mock.On call
+// RevokeAllSessionsByUserID is a helper method to define mock.On call
 //   - ctx context.Context
-//   - refreshToken string
-func (_e *Service_Expecter) LogoutAll(ctx interface{}, refreshToken interface{}) *Service_LogoutAll_Call {
-	return &Service_LogoutAll_Call{Call: _e.mock.On("LogoutAll", ctx, refreshToken)}
+//   - userID uint64
+func (_e *SessionStorage_Expecter) RevokeAllSessionsByUserID(ctx interface{}, userID interface{}) *SessionStorage_RevokeAllSessionsByUserID_Call {
+	return &SessionStorage_RevokeAllSessionsByUserID_Call{Call: _e.mock.On("RevokeAllSessionsByUserID", ctx, userID)}
 }
 
-func (_c *Service_LogoutAll_Call) Run(run func(ctx context.Context, refreshToken string)) *Service_LogoutAll_Call {
+func (_c *SessionStorage_RevokeAllSessionsByUserID_Call) Run(run func(ctx context.Context, userID uint64)) *SessionStorage_RevokeAllSessionsByUserID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 string
+		var arg1 uint64
 		if args[1] != nil {
-			arg1 = args[1].(string)
+			arg1 = args[1].(uint64)
 		}
 		run(
 			arg0,
@@ -663,65 +402,54 @@ func (_c *Service_LogoutAll_Call) Run(run func(ctx context.Context, refreshToken
 	return _c
 }
 
-func (_c *Service_LogoutAll_Call) Return(err error) *Service_LogoutAll_Call {
+func (_c *SessionStorage_RevokeAllSessionsByUserID_Call) Return(err error) *SessionStorage_RevokeAllSessionsByUserID_Call {
 	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *Service_LogoutAll_Call) RunAndReturn(run func(ctx context.Context, refreshToken string) error) *Service_LogoutAll_Call {
+func (_c *SessionStorage_RevokeAllSessionsByUserID_Call) RunAndReturn(run func(ctx context.Context, userID uint64) error) *SessionStorage_RevokeAllSessionsByUserID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Refresh provides a mock function for the type Service
-func (_mock *Service) Refresh(ctx context.Context, in models.RefreshInput) (*auth_service.AuthInfo, error) {
-	ret := _mock.Called(ctx, in)
+// RevokeSessionByRefreshHash provides a mock function for the type SessionStorage
+func (_mock *SessionStorage) RevokeSessionByRefreshHash(ctx context.Context, refreshHash []byte) error {
+	ret := _mock.Called(ctx, refreshHash)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Refresh")
+		panic("no return value specified for RevokeSessionByRefreshHash")
 	}
 
-	var r0 *auth_service.AuthInfo
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, models.RefreshInput) (*auth_service.AuthInfo, error)); ok {
-		return returnFunc(ctx, in)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, models.RefreshInput) *auth_service.AuthInfo); ok {
-		r0 = returnFunc(ctx, in)
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []byte) error); ok {
+		r0 = returnFunc(ctx, refreshHash)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*auth_service.AuthInfo)
-		}
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, models.RefreshInput) error); ok {
-		r1 = returnFunc(ctx, in)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
-// Service_Refresh_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Refresh'
-type Service_Refresh_Call struct {
+// SessionStorage_RevokeSessionByRefreshHash_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RevokeSessionByRefreshHash'
+type SessionStorage_RevokeSessionByRefreshHash_Call struct {
 	*mock.Call
 }
 
-// Refresh is a helper method to define mock.On call
+// RevokeSessionByRefreshHash is a helper method to define mock.On call
 //   - ctx context.Context
-//   - in models.RefreshInput
-func (_e *Service_Expecter) Refresh(ctx interface{}, in interface{}) *Service_Refresh_Call {
-	return &Service_Refresh_Call{Call: _e.mock.On("Refresh", ctx, in)}
+//   - refreshHash []byte
+func (_e *SessionStorage_Expecter) RevokeSessionByRefreshHash(ctx interface{}, refreshHash interface{}) *SessionStorage_RevokeSessionByRefreshHash_Call {
+	return &SessionStorage_RevokeSessionByRefreshHash_Call{Call: _e.mock.On("RevokeSessionByRefreshHash", ctx, refreshHash)}
 }
 
-func (_c *Service_Refresh_Call) Run(run func(ctx context.Context, in models.RefreshInput)) *Service_Refresh_Call {
+func (_c *SessionStorage_RevokeSessionByRefreshHash_Call) Run(run func(ctx context.Context, refreshHash []byte)) *SessionStorage_RevokeSessionByRefreshHash_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 models.RefreshInput
+		var arg1 []byte
 		if args[1] != nil {
-			arg1 = args[1].(models.RefreshInput)
+			arg1 = args[1].([]byte)
 		}
 		run(
 			arg0,
@@ -731,80 +459,12 @@ func (_c *Service_Refresh_Call) Run(run func(ctx context.Context, in models.Refr
 	return _c
 }
 
-func (_c *Service_Refresh_Call) Return(authInfo *auth_service.AuthInfo, err error) *Service_Refresh_Call {
-	_c.Call.Return(authInfo, err)
+func (_c *SessionStorage_RevokeSessionByRefreshHash_Call) Return(err error) *SessionStorage_RevokeSessionByRefreshHash_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *Service_Refresh_Call) RunAndReturn(run func(ctx context.Context, in models.RefreshInput) (*auth_service.AuthInfo, error)) *Service_Refresh_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Register provides a mock function for the type Service
-func (_mock *Service) Register(ctx context.Context, in models.RegisterInput) (*auth_service.AuthInfo, error) {
-	ret := _mock.Called(ctx, in)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Register")
-	}
-
-	var r0 *auth_service.AuthInfo
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, models.RegisterInput) (*auth_service.AuthInfo, error)); ok {
-		return returnFunc(ctx, in)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, models.RegisterInput) *auth_service.AuthInfo); ok {
-		r0 = returnFunc(ctx, in)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*auth_service.AuthInfo)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, models.RegisterInput) error); ok {
-		r1 = returnFunc(ctx, in)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// Service_Register_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Register'
-type Service_Register_Call struct {
-	*mock.Call
-}
-
-// Register is a helper method to define mock.On call
-//   - ctx context.Context
-//   - in models.RegisterInput
-func (_e *Service_Expecter) Register(ctx interface{}, in interface{}) *Service_Register_Call {
-	return &Service_Register_Call{Call: _e.mock.On("Register", ctx, in)}
-}
-
-func (_c *Service_Register_Call) Run(run func(ctx context.Context, in models.RegisterInput)) *Service_Register_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 models.RegisterInput
-		if args[1] != nil {
-			arg1 = args[1].(models.RegisterInput)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *Service_Register_Call) Return(authInfo *auth_service.AuthInfo, err error) *Service_Register_Call {
-	_c.Call.Return(authInfo, err)
-	return _c
-}
-
-func (_c *Service_Register_Call) RunAndReturn(run func(ctx context.Context, in models.RegisterInput) (*auth_service.AuthInfo, error)) *Service_Register_Call {
+func (_c *SessionStorage_RevokeSessionByRefreshHash_Call) RunAndReturn(run func(ctx context.Context, refreshHash []byte) error) *SessionStorage_RevokeSessionByRefreshHash_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package auth.service.v1;
 
-option go_package = "github.com/vbncursed/medialog/auth-service/internal/pb/auth_api";
+option go_package = "github.com/vbncursed/medialog/auth_service/internal/pb/auth_api";
 
 import "google/api/annotations.proto";
 import "models/auth_model.proto";

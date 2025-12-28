@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/vbncursed/medialog/auth-service/internal/models"
+	"github.com/vbncursed/medialog/auth_service/internal/models"
 )
 
 var (

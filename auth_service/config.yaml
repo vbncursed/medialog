@@ -15,13 +15,14 @@ redis:
 auth:
   # В проде только через env/secret manager.
   jwt_secret: "CHANGE_ME"
-  access_ttl_seconds: 900
+  access_ttl_seconds: 3600
   refresh_ttl_seconds: 2592000
-  rate_limit_login_per_minute: 20
-  rate_limit_register_per_minute: 10
+  rate_limit_login_per_minute: 5
+  rate_limit_register_per_minute: 5
+  rate_limit_refresh_per_minute: 5
 
 server:
   grpc_addr: ":50052"
-  http_addr: ":8080"
+  http_addr: ":8081"
 
 
