@@ -5,7 +5,7 @@ package auth.service.v1;
 option go_package = "github.com/vbncursed/medialog/auth_service/internal/pb/auth_api";
 
 import "google/api/annotations.proto";
-import "auth_service/api/models/auth_model.proto";
+import "models/auth_model.proto";
 
 // AuthService предоставляет операции регистрации/логина и управление refresh-сессиями.
 service AuthService {
