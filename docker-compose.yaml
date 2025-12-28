@@ -108,8 +108,11 @@ services:
 
 volumes:
   postgres_data:
+    name: medialog_postgres_data
   redis_data:
+    name: medialog_redis_data
   kafka_data:
+    name: medialog_kafka_data
 
 networks:
   medialog-net:
