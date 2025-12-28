@@ -73,6 +73,6 @@ func runGatewayServer() error {
 
 	r.Mount("/", mux)
 
-	slog.Info("gRPC-Gateway server listening on :8080")
-	return http.ListenAndServe(":8080", r)
+	slog.Info("gRPC-Gateway server listening on :8081")
+	return http.ListenAndServe(":8081", r)
 }
