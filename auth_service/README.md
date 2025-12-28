@@ -108,10 +108,10 @@ go run ./cmd/app
 
 ## API Документация
 
-После запуска сервиса доступна Swagger UI:
+После запуска сервиса доступна Scalar API Reference:
 
-- **Swagger UI**: http://localhost:8081/docs/
-- **Swagger JSON**: http://localhost:8081/swagger.json
+- **Scalar API Reference**: http://localhost:8081/docs
+- **OpenAPI JSON**: http://localhost:8081/swagger.json
 
 ### Endpoints
 

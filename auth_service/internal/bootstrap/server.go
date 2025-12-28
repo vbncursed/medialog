@@ -10,7 +10,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	httpSwagger "github.com/swaggo/http-swagger"
 	server "github.com/vbncursed/medialog/auth_service/internal/api/auth_service_api"
 	"github.com/vbncursed/medialog/auth_service/internal/pb/auth_api"
 	"google.golang.org/grpc"
@@ -59,9 +58,31 @@ func runGatewayServer() error {
 		http.ServeFile(w, r, swaggerPath)
 	})
 
-	r.Get("/docs/*", httpSwagger.Handler(
-		httpSwagger.URL("/swagger.json"),
-	))
+	// Scalar API Reference UI
+	r.Get("/docs", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `<!doctype html>
+<html>
+  <head>
+    <title>API Reference</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script
+      id="api-reference"
+      data-url="/swagger.json"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest"></script>
+  </body>
+</html>`)
+	})
 
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
