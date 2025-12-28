@@ -32,4 +32,3 @@ func (s *SessionStorage) CreateSession(ctx context.Context, userID uint64, refre
 
 	return s.rdb.Set(ctx, key, data, ttl).Err()
 }
-

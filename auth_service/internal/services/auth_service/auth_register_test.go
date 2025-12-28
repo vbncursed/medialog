@@ -11,9 +11,9 @@ import (
 )
 
 func (s *AuthServiceSuite) TestRegister_InvalidArgs() {
-	_, gotErr := s.svc.Register(s.ctx, inEmailPass[models.RegisterInput]("bad", "short"))
-	wantErr := auth_service.ErrInvalidArgument
-	assert.ErrorIs(s.T(), gotErr, wantErr)
+	_, got := s.svc.Register(s.ctx, inEmailPass[models.RegisterInput]("bad", "short"))
+	want := auth_service.ErrInvalidArgument
+	assert.ErrorIs(s.T(), got, want)
 }
 
 func (s *AuthServiceSuite) TestRegister_PasswordComplexity() {
@@ -25,9 +25,9 @@ func (s *AuthServiceSuite) TestRegister_PasswordComplexity() {
 	}
 
 	for _, pwd := range cases {
-		_, gotErr := s.svc.Register(s.ctx, inEmailPass[models.RegisterInput]("a@b.com", pwd))
-		wantErr := auth_service.ErrInvalidArgument
-		assert.ErrorIs(s.T(), gotErr, wantErr)
+		_, got := s.svc.Register(s.ctx, inEmailPass[models.RegisterInput]("a@b.com", pwd))
+		want := auth_service.ErrInvalidPassword
+		assert.ErrorIs(s.T(), got, want)
 	}
 }
 
@@ -35,26 +35,26 @@ func (s *AuthServiceSuite) TestRegister_EmailExists() {
 	s.st.EXPECT().
 		GetUserByEmail(s.ctx, "a@b.com").
 		Return(&models.User{ID: 1, Email: "a@b.com", PasswordHash: "hash"}, nil)
-	_, gotErr := s.svc.Register(s.ctx, inEmailPass[models.RegisterInput]("a@b.com", "Password123"))
-	wantErr := auth_service.ErrEmailAlreadyExists
-	assert.ErrorIs(s.T(), gotErr, wantErr)
+	_, got := s.svc.Register(s.ctx, inEmailPass[models.RegisterInput]("a@b.com", "Password123"))
+	want := auth_service.ErrEmailAlreadyExists
+	assert.ErrorIs(s.T(), got, want)
 }
 
 func (s *AuthServiceSuite) TestRegister_StorageLookupError() {
-	wantErr := errors.New("boom")
-	s.st.EXPECT().GetUserByEmail(s.ctx, "a@b.com").Return(nil, wantErr)
+	want := errors.New("boom")
+	s.st.EXPECT().GetUserByEmail(s.ctx, "a@b.com").Return(nil, want)
 
-	_, gotErr := s.svc.Register(s.ctx, inEmailPass[models.RegisterInput]("a@b.com", "Password123"))
-	assert.ErrorIs(s.T(), gotErr, wantErr)
+	_, got := s.svc.Register(s.ctx, inEmailPass[models.RegisterInput]("a@b.com", "Password123"))
+	assert.ErrorIs(s.T(), got, want)
 }
 
 func (s *AuthServiceSuite) TestRegister_CreateUserErrorMappedToAlreadyExists() {
 	s.st.EXPECT().GetUserByEmail(s.ctx, "a@b.com").Return(nil, auth_storage.ErrUserNotFound)
 	s.st.EXPECT().CreateUser(mock.Anything, "a@b.com", mock.Anything).Return(uint64(0), errors.New("db down"))
 
-	_, gotErr := s.svc.Register(s.ctx, inEmailPass[models.RegisterInput]("a@b.com", "Password123"))
-	wantErr := auth_service.ErrEmailAlreadyExists
-	assert.ErrorIs(s.T(), gotErr, wantErr)
+	_, got := s.svc.Register(s.ctx, inEmailPass[models.RegisterInput]("a@b.com", "Password123"))
+	want := auth_service.ErrEmailAlreadyExists
+	assert.ErrorIs(s.T(), got, want)
 }
 
 func (s *AuthServiceSuite) TestRegister_Success() {
@@ -62,13 +62,10 @@ func (s *AuthServiceSuite) TestRegister_Success() {
 	s.st.EXPECT().CreateUser(mock.Anything, "a@b.com", mock.Anything).Return(uint64(1), nil)
 	s.sessSt.EXPECT().CreateSession(mock.Anything, uint64(1), mock.Anything, mock.Anything, "ua", "127.0.0.1").Return(nil)
 
-	got, gotErr := s.svc.Register(s.ctx, inEmailPassWithUA[models.RegisterInput]("a@b.com", "Password123", "ua"))
-	assert.NilError(s.T(), gotErr)
+	got, err := s.svc.Register(s.ctx, inEmailPassWithUA[models.RegisterInput]("a@b.com", "Password123", "ua"))
+	assert.NilError(s.T(), err)
 
-	wantUserIDNonZero := true
-	wantAccessNonEmpty := true
-	wantRefreshNonEmpty := true
-	assert.Equal(s.T(), got.UserID != 0, wantUserIDNonZero)
-	assert.Equal(s.T(), got.AccessToken != "", wantAccessNonEmpty)
-	assert.Equal(s.T(), got.RefreshToken != "", wantRefreshNonEmpty)
+	assert.Assert(s.T(), got.UserID != 0)
+	assert.Assert(s.T(), got.AccessToken != "")
+	assert.Assert(s.T(), got.RefreshToken != "")
 }

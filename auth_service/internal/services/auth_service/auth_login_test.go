@@ -12,16 +12,16 @@ import (
 )
 
 func (s *AuthServiceSuite) TestLogin_InvalidArgs() {
-	_, gotErr := s.svc.Login(s.ctx, inEmailPass[models.LoginInput]("bad", "short"))
-	wantErr := auth_service.ErrInvalidArgument
-	assert.ErrorIs(s.T(), gotErr, wantErr)
+	_, got := s.svc.Login(s.ctx, inEmailPass[models.LoginInput]("bad", "short"))
+	want := auth_service.ErrInvalidArgument
+	assert.ErrorIs(s.T(), got, want)
 }
 
 func (s *AuthServiceSuite) TestLogin_UserNotFound() {
 	s.st.EXPECT().GetUserByEmail(s.ctx, "a@b.com").Return(nil, auth_storage.ErrUserNotFound)
-	_, gotErr := s.svc.Login(s.ctx, inEmailPass[models.LoginInput]("a@b.com", "Password123"))
-	wantErr := auth_service.ErrInvalidCredentials
-	assert.ErrorIs(s.T(), gotErr, wantErr)
+	_, got := s.svc.Login(s.ctx, inEmailPass[models.LoginInput]("a@b.com", "Password123"))
+	want := auth_service.ErrInvalidCredentials
+	assert.ErrorIs(s.T(), got, want)
 }
 
 func (s *AuthServiceSuite) TestLogin_WrongPassword() {
@@ -33,9 +33,9 @@ func (s *AuthServiceSuite) TestLogin_WrongPassword() {
 		GetUserByEmail(s.ctx, "a@b.com").
 		Return(&models.User{ID: 1, Email: "a@b.com", PasswordHash: passHash}, nil)
 
-	_, gotErr := s.svc.Login(s.ctx, inEmailPass[models.LoginInput]("a@b.com", "Password124"))
-	wantErr := auth_service.ErrInvalidCredentials
-	assert.ErrorIs(s.T(), gotErr, wantErr)
+	_, got := s.svc.Login(s.ctx, inEmailPass[models.LoginInput]("a@b.com", "Password124"))
+	want := auth_service.ErrInvalidCredentials
+	assert.ErrorIs(s.T(), got, want)
 }
 
 func (s *AuthServiceSuite) TestLogin_Success() {
@@ -48,28 +48,26 @@ func (s *AuthServiceSuite) TestLogin_Success() {
 		Return(&models.User{ID: 1, Email: "a@b.com", PasswordHash: passHash}, nil)
 	s.sessSt.EXPECT().CreateSession(mock.Anything, uint64(1), mock.Anything, mock.Anything, "ua", "127.0.0.1").Return(nil)
 
-	got, gotErr := s.svc.Login(s.ctx, models.LoginInput{
+	got, err := s.svc.Login(s.ctx, models.LoginInput{
 		Email:     "a@b.com",
 		Password:  "Password123",
 		UserAgent: "ua",
 		IP:        "127.0.0.1",
 	})
-	assert.NilError(s.T(), gotErr)
+	assert.NilError(s.T(), err)
 
-	wantAccessNonEmpty := true
-	wantRefreshNonEmpty := true
-	assert.Equal(s.T(), got.AccessToken != "", wantAccessNonEmpty)
-	assert.Equal(s.T(), got.RefreshToken != "", wantRefreshNonEmpty)
+	assert.Assert(s.T(), got.AccessToken != "")
+	assert.Assert(s.T(), got.RefreshToken != "")
 }
 
 func (s *AuthServiceSuite) TestLogin_StorageError() {
-	wantErr := errors.New("db fail")
-	s.st.EXPECT().GetUserByEmail(s.ctx, "a@b.com").Return(nil, wantErr)
-	_, gotErr := s.svc.Login(s.ctx, models.LoginInput{
+	want := errors.New("db fail")
+	s.st.EXPECT().GetUserByEmail(s.ctx, "a@b.com").Return(nil, want)
+	_, got := s.svc.Login(s.ctx, models.LoginInput{
 		Email:     "a@b.com",
 		Password:  "Password123",
 		UserAgent: "ua",
 		IP:        "127.0.0.1",
 	})
-	assert.ErrorIs(s.T(), gotErr, wantErr)
+	assert.ErrorIs(s.T(), got, want)
 }

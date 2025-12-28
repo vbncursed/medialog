@@ -8,14 +8,13 @@ import (
 	"github.com/vbncursed/medialog/auth_service/internal/pb/models"
 	"github.com/vbncursed/medialog/auth_service/internal/services/auth_service"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 func (a *AuthServiceAPI) Register(ctx context.Context, req *models.RegisterRequest) (*models.AuthResponse, error) {
 	ua, ip := clientMeta(ctx)
 
 	if !a.registerLimiter.Allow(ctx, ip) {
-		return nil, status.Error(codes.ResourceExhausted, "rate limit exceeded")
+		return nil, newError(codes.ResourceExhausted, ErrCodeRateLimitExceeded, "Too many registration attempts. Please try again later.")
 	}
 
 	res, err := a.authService.Register(ctx, domain.RegisterInput{
@@ -26,12 +25,16 @@ func (a *AuthServiceAPI) Register(ctx context.Context, req *models.RegisterReque
 	})
 	if err != nil {
 		switch {
+		case errors.Is(err, auth_service.ErrInvalidEmail):
+			return nil, newFieldError(codes.InvalidArgument, ErrCodeInvalidEmail, "email", "Invalid email format.")
+		case errors.Is(err, auth_service.ErrInvalidPassword):
+			return nil, newFieldError(codes.InvalidArgument, ErrCodeInvalidPassword, "password", "Password must be at least 8 characters with uppercase, lowercase, and digit.")
 		case errors.Is(err, auth_service.ErrInvalidArgument):
-			return nil, status.Error(codes.InvalidArgument, "invalid email/password")
+			return nil, newError(codes.InvalidArgument, ErrCodeInvalidInput, "Invalid email or password format.")
 		case errors.Is(err, auth_service.ErrEmailAlreadyExists):
-			return nil, status.Error(codes.AlreadyExists, "email already exists")
+			return nil, newError(codes.AlreadyExists, ErrCodeEmailAlreadyExists, "An account with this email already exists.")
 		default:
-			return nil, status.Error(codes.Internal, "internal error")
+			return nil, newError(codes.Internal, ErrCodeInternal, "An internal error occurred. Please try again later.")
 		}
 	}
 
