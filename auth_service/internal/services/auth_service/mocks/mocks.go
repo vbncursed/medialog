@@ -40,6 +40,72 @@ func (_m *AuthStorage) EXPECT() *AuthStorage_Expecter {
 	return &AuthStorage_Expecter{mock: &_m.Mock}
 }
 
+// CleanupOldSessions provides a mock function for the type AuthStorage
+func (_mock *AuthStorage) CleanupOldSessions(ctx context.Context, retentionPeriod time.Duration) (int64, error) {
+	ret := _mock.Called(ctx, retentionPeriod)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CleanupOldSessions")
+	}
+
+	var r0 int64
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, time.Duration) (int64, error)); ok {
+		return returnFunc(ctx, retentionPeriod)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, time.Duration) int64); ok {
+		r0 = returnFunc(ctx, retentionPeriod)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, time.Duration) error); ok {
+		r1 = returnFunc(ctx, retentionPeriod)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// AuthStorage_CleanupOldSessions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CleanupOldSessions'
+type AuthStorage_CleanupOldSessions_Call struct {
+	*mock.Call
+}
+
+// CleanupOldSessions is a helper method to define mock.On call
+//   - ctx context.Context
+//   - retentionPeriod time.Duration
+func (_e *AuthStorage_Expecter) CleanupOldSessions(ctx interface{}, retentionPeriod interface{}) *AuthStorage_CleanupOldSessions_Call {
+	return &AuthStorage_CleanupOldSessions_Call{Call: _e.mock.On("CleanupOldSessions", ctx, retentionPeriod)}
+}
+
+func (_c *AuthStorage_CleanupOldSessions_Call) Run(run func(ctx context.Context, retentionPeriod time.Duration)) *AuthStorage_CleanupOldSessions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 time.Duration
+		if args[1] != nil {
+			arg1 = args[1].(time.Duration)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *AuthStorage_CleanupOldSessions_Call) Return(n int64, err error) *AuthStorage_CleanupOldSessions_Call {
+	_c.Call.Return(n, err)
+	return _c
+}
+
+func (_c *AuthStorage_CleanupOldSessions_Call) RunAndReturn(run func(ctx context.Context, retentionPeriod time.Duration) (int64, error)) *AuthStorage_CleanupOldSessions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateSession provides a mock function for the type AuthStorage
 func (_mock *AuthStorage) CreateSession(ctx context.Context, userID uint64, refreshHash []byte, expiresAt time.Time, userAgent string, ip string) (uint64, error) {
 	ret := _mock.Called(ctx, userID, refreshHash, expiresAt, userAgent, ip)

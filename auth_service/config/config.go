@@ -31,11 +31,14 @@ type RedisConfig struct {
 }
 
 type AuthConfig struct {
-	JWTSecret                  string `yaml:"jwt_secret"`
-	AccessTTLSeconds           int64  `yaml:"access_ttl_seconds"`
-	RefreshTTLSeconds          int64  `yaml:"refresh_ttl_seconds"`
-	RateLimitLoginPerMinute    int    `yaml:"rate_limit_login_per_minute"`
-	RateLimitRegisterPerMinute int    `yaml:"rate_limit_register_per_minute"`
+	JWTSecret                   string `yaml:"jwt_secret"`
+	AccessTTLSeconds            int64  `yaml:"access_ttl_seconds"`
+	RefreshTTLSeconds           int64  `yaml:"refresh_ttl_seconds"`
+	RateLimitLoginPerMinute     int    `yaml:"rate_limit_login_per_minute"`
+	RateLimitRegisterPerMinute  int    `yaml:"rate_limit_register_per_minute"`
+	RateLimitRefreshPerMinute   int    `yaml:"rate_limit_refresh_per_minute"`
+	SessionCleanupIntervalHours int    `yaml:"session_cleanup_interval_hours"`
+	SessionRetentionPeriodDays  int    `yaml:"session_retention_period_days"`
 }
 
 type ServerConfig struct {

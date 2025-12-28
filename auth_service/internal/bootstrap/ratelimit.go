@@ -7,9 +7,8 @@ import (
 	server "github.com/vbncursed/medialog/auth-service/internal/api/auth_service_api"
 )
 
-func InitAuthRateLimiters(redisClient *redis.Client, loginLimitPerMinute, registerLimitPerMinute int) (server.RateLimiter, server.RateLimiter) {
+func InitAuthRateLimiters(redisClient *redis.Client, loginLimitPerMinute, registerLimitPerMinute, refreshLimitPerMinute int) (server.RateLimiter, server.RateLimiter, server.RateLimiter) {
 	return server.NewRedisRateLimiter(redisClient, "login", loginLimitPerMinute, time.Minute),
-		server.NewRedisRateLimiter(redisClient, "register", registerLimitPerMinute, time.Minute)
+		server.NewRedisRateLimiter(redisClient, "register", registerLimitPerMinute, time.Minute),
+		server.NewRedisRateLimiter(redisClient, "refresh", refreshLimitPerMinute, time.Minute)
 }
-
-

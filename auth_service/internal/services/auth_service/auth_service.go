@@ -15,6 +15,7 @@ type AuthStorage interface {
 	GetSessionByRefreshHash(ctx context.Context, refreshHash []byte) (*models.Session, error)
 	RevokeSessionByID(ctx context.Context, sessionID uint64, revokedAt time.Time) error
 	RevokeAllSessionsByUserID(ctx context.Context, userID uint64, revokedAt time.Time) error
+	CleanupOldSessions(ctx context.Context, retentionPeriod time.Duration) (int64, error)
 }
 
 type Service interface {

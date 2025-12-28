@@ -14,6 +14,10 @@ import (
 func (a *AuthServiceAPI) Refresh(ctx context.Context, req *models.RefreshRequest) (*models.AuthResponse, error) {
 	ua, ip := clientMeta(ctx)
 
+	if !a.refreshLimiter.Allow(ctx, ip) {
+		return nil, status.Error(codes.ResourceExhausted, "rate limit exceeded")
+	}
+
 	res, err := a.authService.Refresh(ctx, domain.RefreshInput{
 		RefreshToken: req.GetRefreshToken(),
 		UserAgent:    ua,

@@ -22,22 +22,27 @@ type AuthServiceAPI struct {
 	authService     authService
 	loginLimiter    RateLimiter
 	registerLimiter RateLimiter
+	refreshLimiter  RateLimiter
 }
 
 type denyAllLimiter struct{}
 
 func (denyAllLimiter) Allow(ctx context.Context, key string) bool { return false }
 
-func NewAuthServiceAPI(authService *auth_service.AuthService, loginLimiter, registerLimiter RateLimiter) *AuthServiceAPI {
+func NewAuthServiceAPI(authService *auth_service.AuthService, loginLimiter, registerLimiter, refreshLimiter RateLimiter) *AuthServiceAPI {
 	if loginLimiter == nil {
 		loginLimiter = denyAllLimiter{}
 	}
 	if registerLimiter == nil {
 		registerLimiter = denyAllLimiter{}
 	}
+	if refreshLimiter == nil {
+		refreshLimiter = denyAllLimiter{}
+	}
 	return &AuthServiceAPI{
 		authService:     authService,
 		loginLimiter:    loginLimiter,
 		registerLimiter: registerLimiter,
+		refreshLimiter:  refreshLimiter,
 	}
 }

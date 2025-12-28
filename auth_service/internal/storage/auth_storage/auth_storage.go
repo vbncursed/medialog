@@ -53,7 +53,8 @@ CREATE TABLE IF NOT EXISTS %s (
 
 CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON %s(user_id);
 CREATE INDEX IF NOT EXISTS sessions_expires_at_idx ON %s(expires_at);
-`, usersTable, sessionsTable, usersTable, sessionsTable, sessionsTable)
+CREATE INDEX IF NOT EXISTS sessions_revoked_at_idx ON %s(revoked_at) WHERE revoked_at IS NOT NULL;
+`, usersTable, sessionsTable, usersTable, sessionsTable, sessionsTable, sessionsTable)
 
 	_, err := s.db.Exec(context.Background(), sql)
 	if err != nil {

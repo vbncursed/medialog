@@ -77,3 +77,17 @@ func (s *AuthStorage) RevokeAllSessionsByUserID(ctx context.Context, userID uint
 	)
 	return err
 }
+
+func (s *AuthStorage) CleanupOldSessions(ctx context.Context, retentionPeriod time.Duration) (int64, error) {
+	cutoffTime := time.Now().Add(-retentionPeriod)
+	ct, err := s.db.Exec(ctx,
+		`DELETE FROM `+sessionsTable+` 
+		 WHERE expires_at < now() 
+		 OR (revoked_at IS NOT NULL AND revoked_at < $1)`,
+		cutoffTime,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return ct.RowsAffected(), nil
+}
