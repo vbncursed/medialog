@@ -27,7 +27,7 @@ pull:
 reset:
 	$(DOCKER_COMPOSE) down -v --remove-orphans
 
-# Удобные команды для auth-service (запуск сервиса — отдельно от docker-compose).
+# Удобные команды для auth_service (запуск сервиса — отдельно от docker-compose).
 .PHONY: auth-generate-api
 auth-generate-api:
 	$(MAKE) -C auth_service generate-api

@@ -10,7 +10,7 @@ type User struct {
 }
 
 type Session struct {
-	ID          uint64
+	ID          uint64 `json:"-"`
 	UserID      uint64
 	RefreshHash []byte
 	ExpiresAt   time.Time
