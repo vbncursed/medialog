@@ -4,30 +4,24 @@ import (
 	"context"
 	"time"
 
-	"github.com/vbncursed/medialog/auth-service/internal/models"
+	"github.com/vbncursed/medialog/auth_service/internal/models"
 )
 
 type AuthStorage interface {
 	CreateUser(ctx context.Context, email string, passwordHash string) (uint64, error)
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
-
-	CreateSession(ctx context.Context, userID uint64, refreshHash []byte, expiresAt time.Time, userAgent, ip string) (uint64, error)
-	GetSessionByRefreshHash(ctx context.Context, refreshHash []byte) (*models.Session, error)
-	RevokeSessionByID(ctx context.Context, sessionID uint64, revokedAt time.Time) error
-	RevokeAllSessionsByUserID(ctx context.Context, userID uint64, revokedAt time.Time) error
-	CleanupOldSessions(ctx context.Context, retentionPeriod time.Duration) (int64, error)
 }
 
-type Service interface {
-	Register(ctx context.Context, in models.RegisterInput) (*AuthInfo, error)
-	Login(ctx context.Context, in models.LoginInput) (*AuthInfo, error)
-	Refresh(ctx context.Context, in models.RefreshInput) (*AuthInfo, error)
-	Logout(ctx context.Context, refreshToken string) error
-	LogoutAll(ctx context.Context, refreshToken string) error
+type SessionStorage interface {
+	CreateSession(ctx context.Context, userID uint64, refreshHash []byte, expiresAt time.Time, userAgent, ip string) error
+	GetSessionByRefreshHash(ctx context.Context, refreshHash []byte) (*models.Session, error)
+	RevokeSessionByRefreshHash(ctx context.Context, refreshHash []byte) error
+	RevokeAllSessionsByUserID(ctx context.Context, userID uint64) error
 }
 
 type AuthService struct {
-	authStorage AuthStorage
+	authStorage    AuthStorage
+	sessionStorage SessionStorage
 
 	jwtSecret  string
 	accessTTL  time.Duration
@@ -46,11 +40,12 @@ var (
 	newRefreshTokenFn = newRefreshToken
 )
 
-func NewAuthService(authStorage AuthStorage, jwtSecret string, accessTTLSeconds, refreshTTLSeconds int64) *AuthService {
+func NewAuthService(authStorage AuthStorage, sessionStorage SessionStorage, jwtSecret string, accessTTLSeconds, refreshTTLSeconds int64) *AuthService {
 	return &AuthService{
-		authStorage: authStorage,
-		jwtSecret:   jwtSecret,
-		accessTTL:   time.Duration(accessTTLSeconds) * time.Second,
-		refreshTTL:  time.Duration(refreshTTLSeconds) * time.Second,
+		authStorage:    authStorage,
+		sessionStorage: sessionStorage,
+		jwtSecret:      jwtSecret,
+		accessTTL:      time.Duration(accessTTLSeconds) * time.Second,
+		refreshTTL:     time.Duration(refreshTTLSeconds) * time.Second,
 	}
 }

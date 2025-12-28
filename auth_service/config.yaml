@@ -20,9 +20,6 @@ auth:
   rate_limit_login_per_minute: 5
   rate_limit_register_per_minute: 5
   rate_limit_refresh_per_minute: 5
-  # Очистка старых сессий: каждые 24 часа удаляем сессии старше 7 дней
-  session_cleanup_interval_hours: 24
-  session_retention_period_days: 7
 
 server:
   grpc_addr: ":50052"

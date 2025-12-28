@@ -11,8 +11,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	httpSwagger "github.com/swaggo/http-swagger"
-	server "github.com/vbncursed/medialog/auth-service/internal/api/auth_service_api"
-	"github.com/vbncursed/medialog/auth-service/internal/pb/auth_api"
+	server "github.com/vbncursed/medialog/auth_service/internal/api/auth_service_api"
+	"github.com/vbncursed/medialog/auth_service/internal/pb/auth_api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

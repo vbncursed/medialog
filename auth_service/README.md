@@ -1,4 +1,4 @@
-## auth-service
+## auth_service
 
 Микросервис авторизации для MediaLog.
 

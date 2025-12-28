@@ -3,8 +3,8 @@ package auth_service_test
 import (
 	"crypto/sha256"
 
-	"github.com/vbncursed/medialog/auth-service/internal/models"
-	"github.com/vbncursed/medialog/auth-service/internal/services/auth_service"
+	"github.com/vbncursed/medialog/auth_service/internal/models"
+	"github.com/vbncursed/medialog/auth_service/internal/services/auth_service"
 )
 
 const (
@@ -18,8 +18,8 @@ func sha256b(v string) []byte {
 	return sum[:]
 }
 
-func newTestService(st auth_service.AuthStorage) *auth_service.AuthService {
-	return auth_service.NewAuthService(st, testJWTSecret, testAccessTTL, testRefreshTTL)
+func newTestService(st auth_service.AuthStorage, sessSt auth_service.SessionStorage) *auth_service.AuthService {
+	return auth_service.NewAuthService(st, sessSt, testJWTSecret, testAccessTTL, testRefreshTTL)
 }
 
 type emailPasswordIPInput interface {

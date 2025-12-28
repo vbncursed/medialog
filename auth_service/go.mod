@@ -1,4 +1,4 @@
-module github.com/vbncursed/medialog/auth-service
+module github.com/vbncursed/medialog/auth_service
 
 go 1.25.4
 

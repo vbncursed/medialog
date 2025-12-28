@@ -39,22 +39,7 @@ CREATE TABLE IF NOT EXISTS %s (
   password_hash TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-
-CREATE TABLE IF NOT EXISTS %s (
-  id BIGSERIAL PRIMARY KEY,
-  user_id BIGINT NOT NULL REFERENCES %s(id) ON DELETE CASCADE,
-  refresh_hash BYTEA UNIQUE NOT NULL,
-  expires_at TIMESTAMPTZ NOT NULL,
-  revoked_at TIMESTAMPTZ NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  user_agent TEXT NOT NULL DEFAULT '',
-  ip TEXT NOT NULL DEFAULT ''
-);
-
-CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON %s(user_id);
-CREATE INDEX IF NOT EXISTS sessions_expires_at_idx ON %s(expires_at);
-CREATE INDEX IF NOT EXISTS sessions_revoked_at_idx ON %s(revoked_at) WHERE revoked_at IS NOT NULL;
-`, usersTable, sessionsTable, usersTable, sessionsTable, sessionsTable, sessionsTable)
+`, usersTable)
 
 	_, err := s.db.Exec(context.Background(), sql)
 	if err != nil {

@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	domain "github.com/vbncursed/medialog/auth-service/internal/models"
-	"github.com/vbncursed/medialog/auth-service/internal/pb/models"
-	"github.com/vbncursed/medialog/auth-service/internal/services/auth_service"
+	domain "github.com/vbncursed/medialog/auth_service/internal/models"
+	"github.com/vbncursed/medialog/auth_service/internal/pb/models"
+	"github.com/vbncursed/medialog/auth_service/internal/services/auth_service"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

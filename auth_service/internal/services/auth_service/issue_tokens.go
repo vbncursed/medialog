@@ -13,7 +13,7 @@ func (s *AuthService) issueTokens(ctx context.Context, userID uint64, userAgent,
 		return nil, err
 	}
 
-	_, err = s.authStorage.CreateSession(ctx, userID, refreshHash, refreshExp, userAgent, ip)
+	err = s.sessionStorage.CreateSession(ctx, userID, refreshHash, refreshExp, userAgent, ip)
 	if err != nil {
 		return nil, err
 	}

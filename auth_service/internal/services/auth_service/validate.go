@@ -5,7 +5,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/vbncursed/medialog/auth-service/internal/models"
+	"github.com/vbncursed/medialog/auth_service/internal/models"
 )
 
 func validateEmail(email string) bool {
@@ -61,4 +61,3 @@ func normalizeAndValidateAuthInput(in models.AuthInput) (models.AuthInput, error
 	}
 	return in, nil
 }
-

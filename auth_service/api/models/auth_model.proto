@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package auth.models.v1;
 
-option go_package = "github.com/vbncursed/medialog/auth-service/internal/pb/models";
+option go_package = "github.com/vbncursed/medialog/auth_service/internal/pb/models";
 
 message RegisterRequest {
   string email = 1;

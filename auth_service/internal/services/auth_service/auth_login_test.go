@@ -4,9 +4,9 @@ import (
 	"errors"
 
 	"github.com/stretchr/testify/mock"
-	"github.com/vbncursed/medialog/auth-service/internal/models"
-	"github.com/vbncursed/medialog/auth-service/internal/services/auth_service"
-	"github.com/vbncursed/medialog/auth-service/internal/storage/auth_storage"
+	"github.com/vbncursed/medialog/auth_service/internal/models"
+	"github.com/vbncursed/medialog/auth_service/internal/services/auth_service"
+	"github.com/vbncursed/medialog/auth_service/internal/storage/auth_storage"
 	"golang.org/x/crypto/bcrypt"
 	"gotest.tools/v3/assert"
 )
@@ -46,7 +46,7 @@ func (s *AuthServiceSuite) TestLogin_Success() {
 	s.st.EXPECT().
 		GetUserByEmail(s.ctx, "a@b.com").
 		Return(&models.User{ID: 1, Email: "a@b.com", PasswordHash: passHash}, nil)
-	s.st.EXPECT().CreateSession(mock.Anything, uint64(1), mock.Anything, mock.Anything, "ua", "127.0.0.1").Return(uint64(1), nil)
+	s.sessSt.EXPECT().CreateSession(mock.Anything, uint64(1), mock.Anything, mock.Anything, "ua", "127.0.0.1").Return(nil)
 
 	got, gotErr := s.svc.Login(s.ctx, models.LoginInput{
 		Email:     "a@b.com",
