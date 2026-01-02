@@ -2,6 +2,12 @@ package models
 
 import "time"
 
+const (
+	RoleGuest = "guest"
+	RoleUser  = "user"
+	RoleAdmin = "admin"
+)
+
 // MediaType представляет тип контента
 type MediaType int
 
