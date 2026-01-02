@@ -87,3 +87,57 @@ func (l *LibraryServiceAPI) getUserIDFromContext(ctx context.Context) (uint64, e
 
 	return userID, nil
 }
+
+func (l *LibraryServiceAPI) getUserRoleFromContext(ctx context.Context) (string, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", errors.New("metadata not found in context")
+	}
+
+	var tokenString string
+	if authHeaders := md.Get("authorization"); len(authHeaders) > 0 {
+		authHeader := authHeaders[0]
+		parts := strings.Split(authHeader, " ")
+		if len(parts) == 2 && strings.ToLower(parts[0]) == "bearer" {
+			tokenString = parts[1]
+		} else {
+			tokenString = authHeader
+		}
+	}
+
+	if tokenString == "" {
+		return "", errors.New("authorization token not found in context")
+	}
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(l.jwtSecret), nil
+	})
+
+	if err != nil {
+		return "", fmt.Errorf("failed to parse token: %w", err)
+	}
+
+	if !token.Valid {
+		return "", errors.New("invalid token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", errors.New("invalid token claims")
+	}
+
+	role, ok := claims["role"]
+	if !ok {
+		return "user", nil
+	}
+
+	roleStr, ok := role.(string)
+	if !ok {
+		return "", fmt.Errorf("unexpected role type in token: %T", role)
+	}
+
+	return roleStr, nil
+}
