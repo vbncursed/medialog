@@ -3,7 +3,12 @@ package auth_service
 import "context"
 
 func (s *AuthService) issueTokens(ctx context.Context, userID uint64, userAgent, ip string) (*AuthInfo, error) {
-	access, err := newAccessTokenFn(s.jwtSecret, userID, s.accessTTL)
+	user, err := s.authStorage.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	access, err := newAccessTokenFn(s.jwtSecret, userID, user.Role, s.accessTTL)
 	if err != nil {
 		return nil, err
 	}

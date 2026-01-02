@@ -51,12 +51,13 @@ func newRefreshToken(refreshTTL time.Duration) (token string, hash []byte, exp t
 	return token, hash, exp, nil
 }
 
-func newAccessToken(jwtSecret string, userID uint64, accessTTL time.Duration) (string, error) {
+func newAccessToken(jwtSecret string, userID uint64, role string, accessTTL time.Duration) (string, error) {
 	now := time.Now()
 	claims := jwt.MapClaims{
-		"sub": userID,
-		"iat": now.Unix(),
-		"exp": now.Add(accessTTL).Unix(),
+		"sub":  userID,
+		"role": role,
+		"iat":  now.Unix(),
+		"exp":  now.Add(accessTTL).Unix(),
 	}
 
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS %s (
   id BIGSERIAL PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'user',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 `, usersTable)
@@ -44,6 +45,13 @@ CREATE TABLE IF NOT EXISTS %s (
 	_, err := s.db.Exec(context.Background(), sql)
 	if err != nil {
 		return errors.Wrap(err, "init tables")
+	}
+
+	_, err = s.db.Exec(context.Background(), fmt.Sprintf(`
+		ALTER TABLE %s ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT '%s';
+	`, usersTable, "user"))
+	if err != nil {
+		return errors.Wrap(err, "add role column")
 	}
 
 	return nil

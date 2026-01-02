@@ -10,6 +10,7 @@ import (
 type AuthStorage interface {
 	CreateUser(ctx context.Context, email string, passwordHash string) (uint64, error)
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
+	GetUserByID(ctx context.Context, userID uint64) (*models.User, error)
 }
 
 type SessionStorage interface {

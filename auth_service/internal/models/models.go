@@ -2,10 +2,17 @@ package models
 
 import "time"
 
+const (
+	RoleGuest = "guest"
+	RoleUser  = "user"
+	RoleAdmin = "admin"
+)
+
 type User struct {
 	ID           uint64
 	Email        string
 	PasswordHash string
+	Role         string
 	CreatedAt    time.Time
 }
 

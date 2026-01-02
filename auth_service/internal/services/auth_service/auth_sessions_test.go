@@ -86,6 +86,7 @@ func (s *AuthServiceSuite) TestRefresh_Success_Rotates() {
 	s.sessSt.EXPECT().GetSessionByRefreshHash(mock.Anything, sha256b(rt)).
 		Return(&models.Session{ID: 10, UserID: 1, ExpiresAt: now.Add(time.Hour)}, nil)
 	s.sessSt.EXPECT().RevokeSessionByRefreshHash(mock.Anything, sha256b(rt)).Return(nil)
+	s.st.EXPECT().GetUserByID(mock.Anything, uint64(1)).Return(&models.User{ID: 1, Email: "a@b.com", Role: models.RoleUser}, nil)
 	s.sessSt.EXPECT().CreateSession(mock.Anything, uint64(1), mock.Anything, mock.Anything, "ua", "ip").
 		Return(nil)
 

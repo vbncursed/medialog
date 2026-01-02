@@ -60,6 +60,7 @@ func (s *AuthServiceSuite) TestRegister_CreateUserErrorMappedToAlreadyExists() {
 func (s *AuthServiceSuite) TestRegister_Success() {
 	s.st.EXPECT().GetUserByEmail(s.ctx, "a@b.com").Return(nil, auth_storage.ErrUserNotFound)
 	s.st.EXPECT().CreateUser(mock.Anything, "a@b.com", mock.Anything).Return(uint64(1), nil)
+	s.st.EXPECT().GetUserByID(mock.Anything, uint64(1)).Return(&models.User{ID: 1, Email: "a@b.com", Role: models.RoleUser}, nil)
 	s.sessSt.EXPECT().CreateSession(mock.Anything, uint64(1), mock.Anything, mock.Anything, "ua", "127.0.0.1").Return(nil)
 
 	got, err := s.svc.Register(s.ctx, inEmailPassWithUA[models.RegisterInput]("a@b.com", "Password123", "ua"))

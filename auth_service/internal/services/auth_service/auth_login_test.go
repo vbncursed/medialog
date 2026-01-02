@@ -45,7 +45,8 @@ func (s *AuthServiceSuite) TestLogin_Success() {
 
 	s.st.EXPECT().
 		GetUserByEmail(s.ctx, "a@b.com").
-		Return(&models.User{ID: 1, Email: "a@b.com", PasswordHash: passHash}, nil)
+		Return(&models.User{ID: 1, Email: "a@b.com", PasswordHash: passHash, Role: models.RoleUser}, nil)
+	s.st.EXPECT().GetUserByID(mock.Anything, uint64(1)).Return(&models.User{ID: 1, Email: "a@b.com", Role: models.RoleUser}, nil)
 	s.sessSt.EXPECT().CreateSession(mock.Anything, uint64(1), mock.Anything, mock.Anything, "ua", "127.0.0.1").Return(nil)
 
 	got, err := s.svc.Login(s.ctx, models.LoginInput{
