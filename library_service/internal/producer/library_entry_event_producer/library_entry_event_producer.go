@@ -1,4 +1,4 @@
-package libraryentryeventproducer
+package library_entry_event_producer
 
 type LibraryEntryEventProducer struct {
 	kafkaBrokers []string
@@ -11,4 +11,3 @@ func NewLibraryEntryEventProducer(kafkaBrokers []string, topicName string) *Libr
 		topicName:    topicName,
 	}
 }
-

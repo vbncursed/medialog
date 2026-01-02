@@ -1,4 +1,4 @@
-package libraryentryeventproducer
+package library_entry_event_producer
 
 import (
 	"context"

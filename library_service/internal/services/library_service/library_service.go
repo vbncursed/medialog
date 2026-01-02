@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/vbncursed/medialog/library_service/internal/models"
-	libraryentryeventproducer "github.com/vbncursed/medialog/library_service/internal/producer/library_entry_event_producer"
+	"github.com/vbncursed/medialog/library_service/internal/producer/library_entry_event_producer"
 )
 
 type LibraryStorage interface {
@@ -17,10 +17,10 @@ type LibraryStorage interface {
 
 type LibraryService struct {
 	storage  LibraryStorage
-	producer *libraryentryeventproducer.LibraryEntryEventProducer
+	producer *library_entry_event_producer.LibraryEntryEventProducer
 }
 
-func NewLibraryService(storage LibraryStorage, producer *libraryentryeventproducer.LibraryEntryEventProducer) *LibraryService {
+func NewLibraryService(storage LibraryStorage, producer *library_entry_event_producer.LibraryEntryEventProducer) *LibraryService {
 	return &LibraryService{
 		storage:  storage,
 		producer: producer,
