@@ -251,6 +251,10 @@ func (_c *AuthStorage_GetUserByID_Call) RunAndReturn(run func(ctx context.Contex
 func (_mock *AuthStorage) UpdateUserRole(ctx context.Context, userID uint64, role string) error {
 	ret := _mock.Called(ctx, userID, role)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUserRole")
+	}
+
 	var r0 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context, uint64, string) error); ok {
 		r0 = returnFunc(ctx, userID, role)
