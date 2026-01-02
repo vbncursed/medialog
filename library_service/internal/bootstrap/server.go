@@ -36,7 +36,10 @@ func runGRPCServer(api server.LibraryServiceAPI, cfg *config.Config) error {
 	}
 
 	s := grpc.NewServer(
-		grpc.UnaryInterceptor(unaryLoggingInterceptor()),
+		grpc.ChainUnaryInterceptor(
+			unaryLoggingInterceptor(),
+			server.RequireUserOrAdmin(cfg.Auth.JWTSecret),
+		),
 	)
 	library_api.RegisterLibraryServiceServer(s, &api)
 

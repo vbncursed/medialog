@@ -8,7 +8,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// RequireRole возвращает gRPC interceptor, который проверяет, что пользователь имеет требуемую роль
 func RequireRole(jwtSecret string, requiredRole string) grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
@@ -29,7 +28,6 @@ func RequireRole(jwtSecret string, requiredRole string) grpc.UnaryServerIntercep
 	}
 }
 
-// RequireAnyRole возвращает interceptor, который проверяет, что пользователь имеет одну из требуемых ролей
 func RequireAnyRole(jwtSecret string, requiredRoles ...string) grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
@@ -52,25 +50,20 @@ func RequireAnyRole(jwtSecret string, requiredRoles ...string) grpc.UnaryServerI
 	}
 }
 
-// extractRoleFromContext извлекает роль из JWT токена в контексте
 func extractRoleFromContext(ctx context.Context, jwtSecret string) (string, error) {
 	api := &LibraryServiceAPI{jwtSecret: jwtSecret}
 	return api.getUserRoleFromContext(ctx)
 }
 
-// hasRequiredRole проверяет, имеет ли пользователь требуемую роль
 func hasRequiredRole(userRole, requiredRole string) bool {
-	// Администратор имеет доступ ко всему
 	if userRole == "admin" {
 		return true
 	}
 
-	// Пользователь имеет доступ только к своим ресурсам и публичным страницам
 	if userRole == "user" {
 		return requiredRole == "user" || requiredRole == "guest"
 	}
 
-	// Гость имеет доступ только к публичным страницам
 	if userRole == "guest" {
 		return requiredRole == "guest"
 	}
@@ -78,8 +71,6 @@ func hasRequiredRole(userRole, requiredRole string) bool {
 	return false
 }
 
-// RequireUserOrAdmin проверяет, что пользователь является пользователем или администратором
 func RequireUserOrAdmin(jwtSecret string) grpc.UnaryServerInterceptor {
 	return RequireAnyRole(jwtSecret, "user", "admin")
 }
-
