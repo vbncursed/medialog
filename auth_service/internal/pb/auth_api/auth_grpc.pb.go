@@ -20,11 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_Register_FullMethodName  = "/auth.service.v1.AuthService/Register"
-	AuthService_Login_FullMethodName     = "/auth.service.v1.AuthService/Login"
-	AuthService_Refresh_FullMethodName   = "/auth.service.v1.AuthService/Refresh"
-	AuthService_Logout_FullMethodName    = "/auth.service.v1.AuthService/Logout"
-	AuthService_LogoutAll_FullMethodName = "/auth.service.v1.AuthService/LogoutAll"
+	AuthService_Register_FullMethodName       = "/auth.service.v1.AuthService/Register"
+	AuthService_Login_FullMethodName          = "/auth.service.v1.AuthService/Login"
+	AuthService_Refresh_FullMethodName        = "/auth.service.v1.AuthService/Refresh"
+	AuthService_Logout_FullMethodName         = "/auth.service.v1.AuthService/Logout"
+	AuthService_LogoutAll_FullMethodName      = "/auth.service.v1.AuthService/LogoutAll"
+	AuthService_UpdateUserRole_FullMethodName = "/auth.service.v1.AuthService/UpdateUserRole"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -43,6 +44,8 @@ type AuthServiceClient interface {
 	Logout(ctx context.Context, in *models.LogoutRequest, opts ...grpc.CallOption) (*models.LogoutResponse, error)
 	// LogoutAll отзывает все refresh-сессии пользователя (по refresh_token одной из сессий).
 	LogoutAll(ctx context.Context, in *models.LogoutAllRequest, opts ...grpc.CallOption) (*models.LogoutResponse, error)
+	// UpdateUserRole изменяет роль пользователя (только для администраторов).
+	UpdateUserRole(ctx context.Context, in *models.UpdateUserRoleRequest, opts ...grpc.CallOption) (*models.UpdateUserRoleResponse, error)
 }
 
 type authServiceClient struct {
@@ -103,6 +106,16 @@ func (c *authServiceClient) LogoutAll(ctx context.Context, in *models.LogoutAllR
 	return out, nil
 }
 
+func (c *authServiceClient) UpdateUserRole(ctx context.Context, in *models.UpdateUserRoleRequest, opts ...grpc.CallOption) (*models.UpdateUserRoleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(models.UpdateUserRoleResponse)
+	err := c.cc.Invoke(ctx, AuthService_UpdateUserRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
@@ -119,6 +132,8 @@ type AuthServiceServer interface {
 	Logout(context.Context, *models.LogoutRequest) (*models.LogoutResponse, error)
 	// LogoutAll отзывает все refresh-сессии пользователя (по refresh_token одной из сессий).
 	LogoutAll(context.Context, *models.LogoutAllRequest) (*models.LogoutResponse, error)
+	// UpdateUserRole изменяет роль пользователя (только для администраторов).
+	UpdateUserRole(context.Context, *models.UpdateUserRoleRequest) (*models.UpdateUserRoleResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -143,6 +158,9 @@ func (UnimplementedAuthServiceServer) Logout(context.Context, *models.LogoutRequ
 }
 func (UnimplementedAuthServiceServer) LogoutAll(context.Context, *models.LogoutAllRequest) (*models.LogoutResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method LogoutAll not implemented")
+}
+func (UnimplementedAuthServiceServer) UpdateUserRole(context.Context, *models.UpdateUserRoleRequest) (*models.UpdateUserRoleResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateUserRole not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -255,6 +273,24 @@ func _AuthService_LogoutAll_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_UpdateUserRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(models.UpdateUserRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).UpdateUserRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_UpdateUserRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).UpdateUserRole(ctx, req.(*models.UpdateUserRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -281,6 +317,10 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LogoutAll",
 			Handler:    _AuthService_LogoutAll_Handler,
+		},
+		{
+			MethodName: "UpdateUserRole",
+			Handler:    _AuthService_UpdateUserRole_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

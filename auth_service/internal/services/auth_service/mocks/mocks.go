@@ -247,6 +247,65 @@ func (_c *AuthStorage_GetUserByID_Call) RunAndReturn(run func(ctx context.Contex
 	return _c
 }
 
+// UpdateUserRole provides a mock function for the type AuthStorage
+func (_mock *AuthStorage) UpdateUserRole(ctx context.Context, userID uint64, role string) error {
+	ret := _mock.Called(ctx, userID, role)
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uint64, string) error); ok {
+		r0 = returnFunc(ctx, userID, role)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// AuthStorage_UpdateUserRole_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateUserRole'
+type AuthStorage_UpdateUserRole_Call struct {
+	*mock.Call
+}
+
+// UpdateUserRole is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID uint64
+//   - role string
+func (_e *AuthStorage_Expecter) UpdateUserRole(ctx interface{}, userID interface{}, role interface{}) *AuthStorage_UpdateUserRole_Call {
+	return &AuthStorage_UpdateUserRole_Call{Call: _e.mock.On("UpdateUserRole", ctx, userID, role)}
+}
+
+func (_c *AuthStorage_UpdateUserRole_Call) Run(run func(ctx context.Context, userID uint64, role string)) *AuthStorage_UpdateUserRole_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uint64
+		if args[1] != nil {
+			arg1 = args[1].(uint64)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *AuthStorage_UpdateUserRole_Call) Return(err error) *AuthStorage_UpdateUserRole_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *AuthStorage_UpdateUserRole_Call) RunAndReturn(run func(ctx context.Context, userID uint64, role string) error) *AuthStorage_UpdateUserRole_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewSessionStorage creates a new instance of SessionStorage. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewSessionStorage(t interface {

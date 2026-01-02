@@ -48,6 +48,14 @@ service AuthService {
       body: "*"
     };
   }
+
+  // UpdateUserRole изменяет роль пользователя (только для администраторов).
+  rpc UpdateUserRole(auth.models.v1.UpdateUserRoleRequest) returns (auth.models.v1.UpdateUserRoleResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/users/{user_id}/role"
+      body: "*"
+    };
+  }
 }
 
 

@@ -56,3 +56,20 @@ func (s *AuthStorage) GetUserByID(ctx context.Context, userID uint64) (*models.U
 	}
 	return &u, nil
 }
+
+func (s *AuthStorage) UpdateUserRole(ctx context.Context, userID uint64, role string) error {
+	result, err := s.db.Exec(ctx,
+		`UPDATE `+usersTable+` SET role = $1 WHERE id = $2`,
+		role, userID,
+	)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected := result.RowsAffected()
+	if rowsAffected == 0 {
+		return ErrUserNotFound
+	}
+
+	return nil
+}

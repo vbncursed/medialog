@@ -180,9 +180,57 @@
           "AuthService"
         ]
       }
+    },
+    "/v1/auth/users/{userId}/role": {
+      "post": {
+        "summary": "UpdateUserRole изменяет роль пользователя (только для администраторов).",
+        "operationId": "AuthService_UpdateUserRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateUserRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AuthServiceUpdateUserRoleBody"
+            }
+          }
+        ],
+        "tags": [
+          "AuthService"
+        ]
+      }
     }
   },
   "definitions": {
+    "AuthServiceUpdateUserRoleBody": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string"
+        }
+      }
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -274,6 +322,9 @@
           "type": "string"
         }
       }
+    },
+    "v1UpdateUserRoleResponse": {
+      "type": "object"
     }
   }
 }

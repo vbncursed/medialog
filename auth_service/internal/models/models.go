@@ -3,10 +3,11 @@ package models
 import "time"
 
 const (
-	RoleGuest = "guest"
 	RoleUser  = "user"
 	RoleAdmin = "admin"
 )
+
+const RoleGuest = "guest"
 
 type User struct {
 	ID           uint64

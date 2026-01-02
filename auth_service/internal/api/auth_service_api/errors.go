@@ -24,7 +24,8 @@ const (
 
 	ErrCodeRateLimitExceeded = "RATE_LIMIT_EXCEEDED"
 
-	ErrCodeInternal           = "INTERNAL_ERROR"
+	ErrCodeUnauthorized      = "UNAUTHORIZED"
+	ErrCodeInternal          = "INTERNAL_ERROR"
 	ErrCodeServiceUnavailable = "SERVICE_UNAVAILABLE"
 )
 

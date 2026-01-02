@@ -353,6 +353,94 @@ func (*LogoutResponse) Descriptor() ([]byte, []int) {
 	return file_models_auth_model_proto_rawDescGZIP(), []int{6}
 }
 
+type UpdateUserRoleRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        uint64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Role          string                 `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateUserRoleRequest) Reset() {
+	*x = UpdateUserRoleRequest{}
+	mi := &file_models_auth_model_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateUserRoleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateUserRoleRequest) ProtoMessage() {}
+
+func (x *UpdateUserRoleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_models_auth_model_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateUserRoleRequest.ProtoReflect.Descriptor instead.
+func (*UpdateUserRoleRequest) Descriptor() ([]byte, []int) {
+	return file_models_auth_model_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateUserRoleRequest) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *UpdateUserRoleRequest) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+type UpdateUserRoleResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateUserRoleResponse) Reset() {
+	*x = UpdateUserRoleResponse{}
+	mi := &file_models_auth_model_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateUserRoleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateUserRoleResponse) ProtoMessage() {}
+
+func (x *UpdateUserRoleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_models_auth_model_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateUserRoleResponse.ProtoReflect.Descriptor instead.
+func (*UpdateUserRoleResponse) Descriptor() ([]byte, []int) {
+	return file_models_auth_model_proto_rawDescGZIP(), []int{8}
+}
+
 var File_models_auth_model_proto protoreflect.FileDescriptor
 
 const file_models_auth_model_proto_rawDesc = "" +
@@ -374,7 +462,11 @@ const file_models_auth_model_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12!\n" +
 	"\faccess_token\x18\x02 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\"\x10\n" +
-	"\x0eLogoutResponseB?Z=github.com/vbncursed/medialog/auth_service/internal/pb/modelsb\x06proto3"
+	"\x0eLogoutResponse\"D\n" +
+	"\x15UpdateUserRoleRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x12\n" +
+	"\x04role\x18\x02 \x01(\tR\x04role\"\x18\n" +
+	"\x16UpdateUserRoleResponseB?Z=github.com/vbncursed/medialog/auth_service/internal/pb/modelsb\x06proto3"
 
 var (
 	file_models_auth_model_proto_rawDescOnce sync.Once
@@ -388,15 +480,17 @@ func file_models_auth_model_proto_rawDescGZIP() []byte {
 	return file_models_auth_model_proto_rawDescData
 }
 
-var file_models_auth_model_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_models_auth_model_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_models_auth_model_proto_goTypes = []any{
-	(*RegisterRequest)(nil),  // 0: auth.models.v1.RegisterRequest
-	(*LoginRequest)(nil),     // 1: auth.models.v1.LoginRequest
-	(*RefreshRequest)(nil),   // 2: auth.models.v1.RefreshRequest
-	(*LogoutRequest)(nil),    // 3: auth.models.v1.LogoutRequest
-	(*LogoutAllRequest)(nil), // 4: auth.models.v1.LogoutAllRequest
-	(*AuthResponse)(nil),     // 5: auth.models.v1.AuthResponse
-	(*LogoutResponse)(nil),   // 6: auth.models.v1.LogoutResponse
+	(*RegisterRequest)(nil),        // 0: auth.models.v1.RegisterRequest
+	(*LoginRequest)(nil),           // 1: auth.models.v1.LoginRequest
+	(*RefreshRequest)(nil),         // 2: auth.models.v1.RefreshRequest
+	(*LogoutRequest)(nil),          // 3: auth.models.v1.LogoutRequest
+	(*LogoutAllRequest)(nil),       // 4: auth.models.v1.LogoutAllRequest
+	(*AuthResponse)(nil),           // 5: auth.models.v1.AuthResponse
+	(*LogoutResponse)(nil),         // 6: auth.models.v1.LogoutResponse
+	(*UpdateUserRoleRequest)(nil),  // 7: auth.models.v1.UpdateUserRoleRequest
+	(*UpdateUserRoleResponse)(nil), // 8: auth.models.v1.UpdateUserRoleResponse
 }
 var file_models_auth_model_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -417,7 +511,7 @@ func file_models_auth_model_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_models_auth_model_proto_rawDesc), len(file_models_auth_model_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

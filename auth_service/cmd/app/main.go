@@ -21,7 +21,7 @@ func main() {
 	sessionStorage := bootstrap.InitSessionStorage(redisClient)
 	authService := bootstrap.InitAuthService(authStorage, sessionStorage, cfg)
 	loginLimiter, registerLimiter, refreshLimiter := bootstrap.InitAuthRateLimiters(redisClient, cfg)
-	authAPI := bootstrap.InitAuthServiceAPI(authService, loginLimiter, registerLimiter, refreshLimiter)
+	authAPI := bootstrap.InitAuthServiceAPI(authService, cfg, loginLimiter, registerLimiter, refreshLimiter)
 
 	bootstrap.AppRun(*authAPI)
 }

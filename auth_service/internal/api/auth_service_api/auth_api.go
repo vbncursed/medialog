@@ -14,12 +14,14 @@ type authService interface {
 	Refresh(ctx context.Context, in models.RefreshInput) (*auth_service.AuthInfo, error)
 	Logout(ctx context.Context, refreshToken string) error
 	LogoutAll(ctx context.Context, refreshToken string) error
+	UpdateUserRole(ctx context.Context, adminUserID uint64, targetUserID uint64, newRole string) error
 }
 
 // AuthServiceAPI реализует grpc AuthServiceServer
 type AuthServiceAPI struct {
 	auth_api.UnimplementedAuthServiceServer
 	authService     authService
+	jwtSecret       string
 	loginLimiter    RateLimiter
 	registerLimiter RateLimiter
 	refreshLimiter  RateLimiter
@@ -29,7 +31,7 @@ type denyAllLimiter struct{}
 
 func (denyAllLimiter) Allow(ctx context.Context, key string) bool { return false }
 
-func NewAuthServiceAPI(authService *auth_service.AuthService, loginLimiter, registerLimiter, refreshLimiter RateLimiter) *AuthServiceAPI {
+func NewAuthServiceAPI(authService *auth_service.AuthService, jwtSecret string, loginLimiter, registerLimiter, refreshLimiter RateLimiter) *AuthServiceAPI {
 	if loginLimiter == nil {
 		loginLimiter = denyAllLimiter{}
 	}
@@ -41,6 +43,7 @@ func NewAuthServiceAPI(authService *auth_service.AuthService, loginLimiter, regi
 	}
 	return &AuthServiceAPI{
 		authService:     authService,
+		jwtSecret:       jwtSecret,
 		loginLimiter:    loginLimiter,
 		registerLimiter: registerLimiter,
 		refreshLimiter:  refreshLimiter,
