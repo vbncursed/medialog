@@ -1,0 +1,353 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "metadata_api/metadata.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "MetadataService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/metadata/media": {
+      "post": {
+        "summary": "CreateMedia создаёт новую запись media с минимальными данными (если контент не найден).",
+        "operationId": "MetadataService_CreateMedia",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMediaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateMediaRequest"
+            }
+          }
+        ],
+        "tags": [
+          "MetadataService"
+        ]
+      }
+    },
+    "/v1/metadata/media/external/{source}/{externalId}": {
+      "get": {
+        "summary": "GetMediaByExternalID возвращает контент по внешнему ID (tmdb_id, isbn и т.д.).",
+        "operationId": "MetadataService_GetMediaByExternalID",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMediaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "source",
+            "description": "tmdb, imdb, isbn и т.д.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MetadataService"
+        ]
+      }
+    },
+    "/v1/metadata/media/{mediaId}": {
+      "get": {
+        "summary": "GetMedia возвращает карточку контента по media_id.",
+        "operationId": "MetadataService_GetMedia",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMediaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "mediaId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "MetadataService"
+        ]
+      }
+    },
+    "/v1/metadata/search": {
+      "post": {
+        "summary": "SearchMedia выполняет поиск контента по названию и опционально по внешним ID.",
+        "operationId": "MetadataService_SearchMedia",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SearchMediaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SearchMediaRequest"
+            }
+          }
+        ],
+        "tags": [
+          "MetadataService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1CreateMediaRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v1MediaType"
+        },
+        "title": {
+          "type": "string"
+        },
+        "year": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "genres": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "posterUrl": {
+          "type": "string"
+        },
+        "coverUrl": {
+          "type": "string"
+        },
+        "externalIds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ExternalID"
+          }
+        }
+      },
+      "title": "CreateMediaRequest - запрос на создание новой записи media"
+    },
+    "v1ExternalID": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "tmdb, imdb, isbn, etc."
+        },
+        "externalId": {
+          "type": "string"
+        }
+      }
+    },
+    "v1GetMediaResponse": {
+      "type": "object",
+      "properties": {
+        "media": {
+          "$ref": "#/definitions/v1Media"
+        }
+      },
+      "title": "GetMediaResponse - ответ с данными контента"
+    },
+    "v1Media": {
+      "type": "object",
+      "properties": {
+        "mediaId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "type": {
+          "$ref": "#/definitions/v1MediaType"
+        },
+        "title": {
+          "type": "string"
+        },
+        "year": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "genres": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "posterUrl": {
+          "type": "string",
+          "title": "для фильмов/сериалов"
+        },
+        "coverUrl": {
+          "type": "string",
+          "title": "для книг"
+        },
+        "externalIds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ExternalID"
+          }
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "v1MediaType": {
+      "type": "string",
+      "enum": [
+        "MEDIA_TYPE_UNSPECIFIED",
+        "MEDIA_TYPE_MOVIE",
+        "MEDIA_TYPE_TV",
+        "MEDIA_TYPE_BOOK"
+      ],
+      "default": "MEDIA_TYPE_UNSPECIFIED"
+    },
+    "v1SearchMediaRequest": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "title": "поисковый запрос (название)"
+        },
+        "type": {
+          "$ref": "#/definitions/v1MediaType",
+          "title": "фильтр по типу (опционально)"
+        },
+        "externalId": {
+          "$ref": "#/definitions/v1ExternalID",
+          "title": "поиск по внешнему ID (опционально)"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "title": "номер страницы (начинается с 1)"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int64",
+          "title": "размер страницы"
+        }
+      },
+      "title": "SearchMediaRequest - запрос на поиск контента"
+    },
+    "v1SearchMediaResponse": {
+      "type": "object",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Media"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "totalPages": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "SearchMediaResponse - результат поиска"
+    }
+  }
+}

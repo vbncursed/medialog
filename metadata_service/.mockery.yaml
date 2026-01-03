@@ -1,0 +1,10 @@
+packages:
+  github.com/vbncursed/medialog/metadata_service/internal/services/metadata_service:
+    config:
+      dir: "{{.InterfaceDir}}/mocks"
+      filename: "mocks.go"
+      pkgname: "mocks"
+      structname: "{{.InterfaceName}}"
+    interfaces:
+      MetadataStorage:
+

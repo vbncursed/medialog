@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package metadata.models.v1;
+
+option go_package = "github.com/vbncursed/medialog/metadata_service/internal/pb/models";
+
+import "google/protobuf/timestamp.proto";
+
+enum MediaType {
+  MEDIA_TYPE_UNSPECIFIED = 0;
+  MEDIA_TYPE_MOVIE = 1;
+  MEDIA_TYPE_TV = 2;
+  MEDIA_TYPE_BOOK = 3;
+}
+
+message ExternalID {
+  string source = 1; // tmdb, imdb, isbn, etc.
+  string external_id = 2;
+}
+
+message Media {
+  uint64 media_id = 1;
+  MediaType type = 2;
+  string title = 3;
+  optional uint32 year = 4;
+  repeated string genres = 5;
+  optional string poster_url = 6;  // для фильмов/сериалов
+  optional string cover_url = 7;   // для книг
+  repeated ExternalID external_ids = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+// SearchMediaRequest - запрос на поиск контента
+message SearchMediaRequest {
+  string query = 1; // поисковый запрос (название)
+  optional MediaType type = 2;         // фильтр по типу (опционально)
+  optional ExternalID external_id = 3; // поиск по внешнему ID (опционально)
+  uint32 page = 4; // номер страницы (начинается с 1)
+  uint32 page_size = 5; // размер страницы
+}
+
+// SearchMediaResponse - результат поиска
+message SearchMediaResponse {
+  repeated Media results = 1;
+  uint32 total = 2;
+  uint32 page = 3;
+  uint32 page_size = 4;
+  uint32 total_pages = 5;
+}
+
+// GetMediaRequest - запрос на получение контента по ID
+message GetMediaRequest {
+  uint64 media_id = 1;
+}
+
+// GetMediaResponse - ответ с данными контента
+message GetMediaResponse {
+  Media media = 1;
+}
+
+// GetMediaByExternalIDRequest - запрос на получение контента по внешнему ID
+message GetMediaByExternalIDRequest {
+  string source = 1; // tmdb, imdb, isbn и т.д.
+  string external_id = 2;
+}
+
+// CreateMediaRequest - запрос на создание новой записи media
+message CreateMediaRequest {
+  MediaType type = 1;
+  string title = 2;
+  optional uint32 year = 3;
+  repeated string genres = 4;
+  optional string poster_url = 5;
+  optional string cover_url = 6;
+  repeated ExternalID external_ids = 7;
+}
+
