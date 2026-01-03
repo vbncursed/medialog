@@ -3,11 +3,11 @@ package library_entry_changed_consumer
 import (
 	"context"
 
-	"github.com/vbncursed/medialog/metadata_service/internal/services/processors/library_entry_processor"
+	"github.com/vbncursed/medialog/shared/events"
 )
 
 type libraryEntryProcessor interface {
-	Handle(ctx context.Context, event *library_entry_processor.LibraryEntryEvent) error
+	Handle(ctx context.Context, event *events.LibraryEntryEvent) error
 }
 
 type LibraryEntryChangedConsumer struct {

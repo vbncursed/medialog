@@ -17,6 +17,11 @@ func (s *LibraryStorage) UpdateEntry(ctx context.Context, entry *models.Entry) e
 		finishedAt = entry.FinishedAt
 	}
 
+	tags := entry.Tags
+	if tags == nil {
+		tags = []string{}
+	}
+
 	result, err := s.db.Exec(ctx,
 		`UPDATE `+entriesTable+` 
 		SET status = $1, rating = $2, review = $3, tags = $4, 
@@ -25,7 +30,7 @@ func (s *LibraryStorage) UpdateEntry(ctx context.Context, entry *models.Entry) e
 		entry.Status,
 		entry.Rating,
 		entry.Review,
-		entry.Tags,
+		tags,
 		startedAt,
 		finishedAt,
 		entry.UpdatedAt,

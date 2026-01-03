@@ -8,10 +8,15 @@ import (
 )
 
 type Config struct {
-	Database DatabaseConfig `yaml:"database"`
-	Kafka    KafkaConfig    `yaml:"kafka"`
-	Server   ServerConfig   `yaml:"server"`
-	Auth     AuthConfig     `yaml:"auth"`
+	Database        DatabaseConfig        `yaml:"database"`
+	Kafka           KafkaConfig           `yaml:"kafka"`
+	Server          ServerConfig          `yaml:"server"`
+	Auth            AuthConfig            `yaml:"auth"`
+	MetadataService MetadataServiceConfig `yaml:"metadata_service"`
+}
+
+type MetadataServiceConfig struct {
+	GRPCAddr string `yaml:"grpc_addr"`
 }
 
 type AuthConfig struct {
@@ -28,8 +33,8 @@ type DatabaseConfig struct {
 }
 
 type KafkaConfig struct {
-	Host                  string `yaml:"host"`
-	Port                  int    `yaml:"port"`
+	Host                   string `yaml:"host"`
+	Port                   int    `yaml:"port"`
 	LibraryEntryEventTopic string `yaml:"library_entry_event_topic"`
 }
 

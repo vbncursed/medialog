@@ -9,5 +9,6 @@ import (
 
 func InitLibraryEntryEventProducer(cfg *config.Config) *library_entry_event_producer.LibraryEntryEventProducer {
 	kafkaBrokers := []string{fmt.Sprintf("%s:%d", cfg.Kafka.Host, cfg.Kafka.Port)}
-	return library_entry_event_producer.NewLibraryEntryEventProducer(kafkaBrokers, cfg.Kafka.LibraryEntryEventTopic)
+	metadataServiceAddr := cfg.MetadataService.GRPCAddr
+	return library_entry_event_producer.NewLibraryEntryEventProducer(kafkaBrokers, cfg.Kafka.LibraryEntryEventTopic, metadataServiceAddr)
 }

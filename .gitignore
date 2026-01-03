@@ -31,6 +31,9 @@ out/
 .env
 .env.*
 
+# Config files with secrets
+metadata_service/config.yaml
+
 # Local DB / tools (если появятся)
 .tmp/
 

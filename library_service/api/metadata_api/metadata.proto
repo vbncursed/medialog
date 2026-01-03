@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package metadata.service.v1;
+
+option go_package = "github.com/vbncursed/medialog/library_service/internal/pb/metadata_api";
+
+import "google/api/annotations.proto";
+import "metadata_models/metadata_model.proto";
+
+// MetadataService предоставляет операции поиска и получения метаданных контента.
+service MetadataService {
+  // SearchMedia выполняет поиск контента по названию и опционально по внешним ID.
+  rpc SearchMedia(metadata.models.v1.SearchMediaRequest) returns (metadata.models.v1.SearchMediaResponse) {
+    option (google.api.http) = {
+      post: "/v1/metadata/search"
+      body: "*"
+    };
+  }
+
+  // GetMedia возвращает карточку контента по media_id.
+  rpc GetMedia(metadata.models.v1.GetMediaRequest) returns (metadata.models.v1.GetMediaResponse) {
+    option (google.api.http) = {
+      get: "/v1/metadata/media/{media_id}"
+    };
+  }
+
+  // GetMediaByExternalID возвращает контент по внешнему ID (tmdb_id, isbn и т.д.).
+  rpc GetMediaByExternalID(metadata.models.v1.GetMediaByExternalIDRequest) returns (metadata.models.v1.GetMediaResponse) {
+    option (google.api.http) = {
+      get: "/v1/metadata/media/external/{source}/{external_id}"
+    };
+  }
+
+  // CreateMedia создаёт новую запись media с минимальными данными (если контент не найден).
+  rpc CreateMedia(metadata.models.v1.CreateMediaRequest) returns (metadata.models.v1.GetMediaResponse) {
+    option (google.api.http) = {
+      post: "/v1/metadata/media"
+      body: "*"
+    };
+  }
+}
+

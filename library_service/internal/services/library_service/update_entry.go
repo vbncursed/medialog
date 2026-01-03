@@ -40,8 +40,11 @@ func (s *LibraryService) UpdateEntry(ctx context.Context, in models.UpdateEntryI
 		entry.Review = *in.Review
 	}
 
-	if len(in.Tags) > 0 {
+	if in.Tags != nil {
 		entry.Tags = in.Tags
+	}
+	if entry.Tags == nil {
+		entry.Tags = []string{}
 	}
 
 	if in.StartedAt != nil {

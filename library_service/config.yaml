@@ -19,3 +19,6 @@ auth:
   # В проде только через env/secret manager.
   jwt_secret: "CHANGE_ME"
 
+metadata_service:
+  grpc_addr: "localhost:50054"
+

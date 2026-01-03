@@ -2,43 +2,53 @@ package library_entry_processor
 
 import (
 	"context"
-	"log/slog"
+
+	"github.com/vbncursed/medialog/metadata_service/internal/models"
+	"github.com/vbncursed/medialog/shared/events"
 )
 
-// LibraryEntryEvent представляет событие об изменении записи в библиотеке
-type LibraryEntryEvent struct {
-	EntryID  uint64 `json:"entry_id"`
-	UserID   uint64 `json:"user_id"`
-	MediaID  uint64 `json:"media_id"`
-	Type     int    `json:"type"`     // MediaType как int
-	Status   int    `json:"status"`   // EntryStatus как int
-	Rating   uint32 `json:"rating"`
-	UpdatedAt int64 `json:"updated_at"`
-}
-
-func (p *LibraryEntryProcessor) Handle(ctx context.Context, event *LibraryEntryEvent) error {
+func (p *LibraryEntryProcessor) Handle(ctx context.Context, event *events.LibraryEntryEvent) error {
 	if event.MediaID == 0 {
-		slog.Warn("library entry event has no media_id", "entry_id", event.EntryID)
 		return nil
 	}
 
-	// Проверяем, есть ли метаданные для этого media_id
 	media, err := p.metadataService.GetMedia(ctx, event.MediaID)
 	if err == nil && media != nil {
-		// Метаданные уже есть, ничего не делаем
-		slog.Debug("metadata already exists", "media_id", event.MediaID)
 		return nil
 	}
 
-	// Метаданных нет - пытаемся обогатить из внешних API
-	// Это будет реализовано позже, когда добавим external API клиенты
-	slog.Info("metadata enrichment requested", "media_id", event.MediaID, "entry_id", event.EntryID)
-	
-	// TODO: реализовать обогащение метаданных из внешних API
-	// 1. Определить тип контента (movie/tv/book)
-	// 2. Вызвать соответствующий внешний API (TMDB для movie/tv, Open Library для book)
-	// 3. Сохранить метаданные в БД
+	mediaType := convertIntToMediaType(event.Type)
+	if mediaType == models.MediaTypeUnspecified {
+		return nil
+	}
+
+	if event.ExternalID != nil && event.ExternalID.Source != "" && event.ExternalID.ExternalID != "" {
+		enrichedMedia, err := p.metadataService.GetMediaByExternalID(ctx, event.ExternalID.Source, event.ExternalID.ExternalID)
+		if err == nil && enrichedMedia != nil {
+			if enrichedMedia.MediaID != event.MediaID {
+				return nil
+			}
+			return nil
+		}
+
+		_, err = p.metadataService.GetMediaByExternalID(ctx, event.ExternalID.Source, event.ExternalID.ExternalID)
+		if err != nil {
+			return nil
+		}
+	}
 
 	return nil
 }
 
+func convertIntToMediaType(t int) models.MediaType {
+	switch t {
+	case 1:
+		return models.MediaTypeMovie
+	case 2:
+		return models.MediaTypeTV
+	case 3:
+		return models.MediaTypeBook
+	default:
+		return models.MediaTypeUnspecified
+	}
+}

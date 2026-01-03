@@ -2,9 +2,11 @@ package library_service
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/vbncursed/medialog/library_service/internal/models"
+	"github.com/vbncursed/medialog/library_service/internal/storage/library_storage"
 )
 
 func (s *LibraryService) CreateEntry(ctx context.Context, in models.CreateEntryInput) (*models.Entry, error) {
@@ -36,6 +38,11 @@ func (s *LibraryService) CreateEntry(ctx context.Context, in models.CreateEntryI
 		finishedAt = &t
 	}
 
+	tags := in.Tags
+	if tags == nil {
+		tags = []string{}
+	}
+
 	entry := &models.Entry{
 		UserID:     in.UserID,
 		MediaID:    in.MediaID,
@@ -43,7 +50,7 @@ func (s *LibraryService) CreateEntry(ctx context.Context, in models.CreateEntryI
 		Status:     in.Status,
 		Rating:     in.Rating,
 		Review:     in.Review,
-		Tags:       in.Tags,
+		Tags:       tags,
 		StartedAt:  startedAt,
 		FinishedAt: finishedAt,
 		CreatedAt:  now,
@@ -51,6 +58,9 @@ func (s *LibraryService) CreateEntry(ctx context.Context, in models.CreateEntryI
 	}
 
 	if err := s.storage.CreateEntry(ctx, entry); err != nil {
+		if errors.Is(err, library_storage.ErrEntryAlreadyExists) {
+			return nil, ErrEntryAlreadyExists
+		}
 		return nil, err
 	}
 

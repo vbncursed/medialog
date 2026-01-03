@@ -9,6 +9,8 @@ import (
 type metadataService interface {
 	GetMedia(ctx context.Context, mediaID uint64) (*models.Media, error)
 	GetMediaByExternalID(ctx context.Context, source, externalID string) (*models.Media, error)
+	SearchMedia(ctx context.Context, input models.SearchMediaInput) (*models.SearchMediaResult, error)
+	CreateMedia(ctx context.Context, input models.CreateMediaInput) (*models.Media, error)
 }
 
 type LibraryEntryProcessor struct {

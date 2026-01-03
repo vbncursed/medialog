@@ -7,7 +7,8 @@ protoc -I ./api \
   -I ./api/google/api \
   --go_out=./internal/pb --go_opt=paths=source_relative \
   --go-grpc_out=./internal/pb --go-grpc_opt=paths=source_relative \
-  ./api/library_api/library.proto ./api/models/library_model.proto
+  ./api/library_api/library.proto ./api/models/library_model.proto \
+  ./api/metadata_api/metadata.proto ./api/metadata_models/metadata_model.proto
 
 # Генерация gRPC-Gateway
 protoc -I ./api \
