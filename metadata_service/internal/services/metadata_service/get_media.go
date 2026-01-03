@@ -13,8 +13,10 @@ func (s *MetadataService) GetMedia(ctx context.Context, mediaID uint64) (*models
 	}
 
 	cacheKey := fmt.Sprintf("metadata:media:%d", mediaID)
-	if cached, err := s.cache.GetMedia(ctx, cacheKey); err == nil && cached != nil {
-		return cached, nil
+	if s.cache != nil {
+		if cached, err := s.cache.GetMedia(ctx, cacheKey); err == nil && cached != nil {
+			return cached, nil
+		}
 	}
 
 	media, err := s.storage.GetMedia(ctx, mediaID)
@@ -22,7 +24,9 @@ func (s *MetadataService) GetMedia(ctx context.Context, mediaID uint64) (*models
 		return nil, err
 	}
 
-	_ = s.cache.SetMedia(ctx, cacheKey, media, s.mediaTTL)
+	if s.cache != nil {
+		_ = s.cache.SetMedia(ctx, cacheKey, media, s.mediaTTL)
+	}
 
 	return media, nil
 }

@@ -19,14 +19,12 @@ func main() {
 	storage := bootstrap.InitPGStorage(cfg)
 	redisClient := bootstrap.InitRedis(cfg)
 	cache := bootstrap.InitMetadataCache(redisClient)
-
-	// TODO: создать external API client
-	// externalAPI := bootstrap.InitExternalAPIClient(cfg)
+	externalAPI := bootstrap.InitExternalAPIClient(cfg)
 
 	metadataService := bootstrap.InitMetadataService(
 		storage,
 		cache,
-		nil, // externalAPI - будет создан позже
+		externalAPI,
 		cfg,
 	)
 

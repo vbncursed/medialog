@@ -68,8 +68,8 @@ type OpenLibraryConfig struct {
 }
 
 type CacheConfig struct {
-	MediaTTLSeconds  int64 `yaml:"media_ttl_seconds"`  // TTL для кэша метаданных
-	SearchTTLSeconds int64 `yaml:"search_ttl_seconds"` // TTL для кэша результатов поиска
+	MediaTTLSeconds  int64 `yaml:"media_ttl_seconds"`
+	SearchTTLSeconds int64 `yaml:"search_ttl_seconds"`
 }
 
 func LoadConfig(filename string) (*Config, error) {

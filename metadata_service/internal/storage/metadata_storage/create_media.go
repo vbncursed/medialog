@@ -18,13 +18,17 @@ func (s *MetadataStorage) CreateMedia(ctx context.Context, media *models.Media) 
 
 	var mediaID uint64
 	now := time.Now()
+	genres := media.Genres
+	if genres == nil {
+		genres = []string{}
+	}
 	err = tx.QueryRow(ctx,
 		fmt.Sprintf(`INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING %s`,
 			metadataMediaTable, typeColumn, titleColumn, yearColumn, genresColumn,
 			posterURLColumn, coverURLColumn, updatedAtColumn, mediaIDColumn),
-		int(media.Type), media.Title, media.Year, media.Genres,
+		int(media.Type), media.Title, media.Year, genres,
 		media.PosterURL, media.CoverURL, now,
 	).Scan(&mediaID)
 

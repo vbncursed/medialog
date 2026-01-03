@@ -17,7 +17,8 @@ var (
 func (s *MetadataStorage) SearchMedia(ctx context.Context, input models.SearchMediaInput) (*models.SearchMediaResult, error) {
 	query := s.buildSearchQuery(input)
 
-	countQuery := query.RemoveColumns().Column("COUNT(*)")
+	// Строим COUNT запрос отдельно
+	countQuery := s.buildCountQuery(input)
 	countSQL, countArgs, err := countQuery.ToSql()
 	if err != nil {
 		return nil, pkgerrors.Wrap(err, "failed to build count query")
@@ -73,11 +74,11 @@ func (s *MetadataStorage) buildSearchQuery(input models.SearchMediaInput) squirr
 		PlaceholderFormat(squirrel.Dollar)
 
 	if input.Query != "" {
-		query = query.Where(squirrel.ILike{titleColumn: fmt.Sprintf("%%%s%%", input.Query)})
+		query = query.Where(squirrel.ILike{fmt.Sprintf("m.%s", titleColumn): fmt.Sprintf("%%%s%%", input.Query)})
 	}
 
 	if input.Type != nil {
-		query = query.Where(squirrel.Eq{typeColumn: int(*input.Type)})
+		query = query.Where(squirrel.Eq{fmt.Sprintf("m.%s", typeColumn): int(*input.Type)})
 	}
 
 	if input.ExternalID != nil {
@@ -89,6 +90,30 @@ func (s *MetadataStorage) buildSearchQuery(input models.SearchMediaInput) squirr
 	}
 
 	query = query.OrderBy(fmt.Sprintf("m.%s DESC", updatedAtColumn))
+
+	return query
+}
+
+func (s *MetadataStorage) buildCountQuery(input models.SearchMediaInput) squirrel.SelectBuilder {
+	query := squirrel.Select("COUNT(*)").
+		From(fmt.Sprintf("%s m", metadataMediaTable)).
+		PlaceholderFormat(squirrel.Dollar)
+
+	if input.Query != "" {
+		query = query.Where(squirrel.ILike{fmt.Sprintf("m.%s", titleColumn): fmt.Sprintf("%%%s%%", input.Query)})
+	}
+
+	if input.Type != nil {
+		query = query.Where(squirrel.Eq{fmt.Sprintf("m.%s", typeColumn): int(*input.Type)})
+	}
+
+	if input.ExternalID != nil {
+		query = query.Join(fmt.Sprintf("%s e ON m.%s = e.%s", metadataExternalIDsTable, mediaIDColumn, mediaIDColumn)).
+			Where(squirrel.Eq{
+				fmt.Sprintf("e.%s", sourceColumn):     input.ExternalID.Source,
+				fmt.Sprintf("e.%s", externalIDColumn): input.ExternalID.ExternalID,
+			})
+	}
 
 	return query
 }

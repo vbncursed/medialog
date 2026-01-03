@@ -15,8 +15,10 @@ func (s *MetadataService) SearchMedia(ctx context.Context, input models.SearchMe
 	}
 
 	cacheKey := s.generateSearchCacheKey(input)
-	if cached, err := s.cache.GetSearchResults(ctx, cacheKey); err == nil && cached != nil {
-		return cached, nil
+	if s.cache != nil {
+		if cached, err := s.cache.GetSearchResults(ctx, cacheKey); err == nil && cached != nil {
+			return cached, nil
+		}
 	}
 
 	if input.ExternalID != nil {
@@ -28,7 +30,9 @@ func (s *MetadataService) SearchMedia(ctx context.Context, input models.SearchMe
 				Page:     input.Page,
 				PageSize: input.PageSize,
 			}
-			_ = s.cache.SetSearchResults(ctx, cacheKey, result, s.searchTTL)
+			if s.cache != nil {
+				_ = s.cache.SetSearchResults(ctx, cacheKey, result, s.searchTTL)
+			}
 			return result, nil
 		}
 	}
@@ -38,18 +42,35 @@ func (s *MetadataService) SearchMedia(ctx context.Context, input models.SearchMe
 		return nil, err
 	}
 
-	if len(result.Results) == 0 && input.Query != "" {
+	if len(result.Results) == 0 && input.Query != "" && s.externalAPI != nil {
 		externalResults, err := s.externalAPI.SearchMedia(ctx, input.Query, input.Type)
-		if err == nil && len(externalResults) > 0 {
+		if err != nil {
+		} else if len(externalResults) > 0 {
 			for _, media := range externalResults {
-				_ = s.storage.CreateMedia(ctx, media)
+				if len(media.ExternalIDs) > 0 {
+					existingMedia, err := s.storage.GetMediaByExternalID(ctx, media.ExternalIDs[0].Source, media.ExternalIDs[0].ExternalID)
+					if err == nil && existingMedia != nil {
+						media.MediaID = existingMedia.MediaID
+						continue
+					}
+				}
+				if err := s.storage.CreateMedia(ctx, media); err != nil {
+					if len(media.ExternalIDs) > 0 {
+						existingMedia, err := s.storage.GetMediaByExternalID(ctx, media.ExternalIDs[0].Source, media.ExternalIDs[0].ExternalID)
+						if err == nil && existingMedia != nil {
+							media.MediaID = existingMedia.MediaID
+						}
+					}
+				}
 			}
 			result.Results = externalResults
 			result.Total = uint32(len(externalResults))
 		}
 	}
 
-	_ = s.cache.SetSearchResults(ctx, cacheKey, result, s.searchTTL)
+	if s.cache != nil {
+		_ = s.cache.SetSearchResults(ctx, cacheKey, result, s.searchTTL)
+	}
 
 	return result, nil
 }

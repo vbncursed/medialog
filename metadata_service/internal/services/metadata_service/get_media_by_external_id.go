@@ -13,13 +13,17 @@ func (s *MetadataService) GetMediaByExternalID(ctx context.Context, source, exte
 	}
 
 	cacheKey := fmt.Sprintf("metadata:external:%s:%s", source, externalID)
-	if cached, err := s.cache.GetMedia(ctx, cacheKey); err == nil && cached != nil {
-		return cached, nil
+	if s.cache != nil {
+		if cached, err := s.cache.GetMedia(ctx, cacheKey); err == nil && cached != nil {
+			return cached, nil
+		}
 	}
 
 	media, err := s.storage.GetMediaByExternalID(ctx, source, externalID)
 	if err == nil && media != nil {
-		_ = s.cache.SetMedia(ctx, cacheKey, media, s.mediaTTL)
+		if s.cache != nil {
+			_ = s.cache.SetMedia(ctx, cacheKey, media, s.mediaTTL)
+		}
 		return media, nil
 	}
 
@@ -27,7 +31,9 @@ func (s *MetadataService) GetMediaByExternalID(ctx context.Context, source, exte
 		media, err := s.externalAPI.GetMediaByExternalID(ctx, source, externalID)
 		if err == nil && media != nil {
 			_ = s.storage.CreateMedia(ctx, media)
-			_ = s.cache.SetMedia(ctx, cacheKey, media, s.mediaTTL)
+			if s.cache != nil {
+				_ = s.cache.SetMedia(ctx, cacheKey, media, s.mediaTTL)
+			}
 			return media, nil
 		}
 	}

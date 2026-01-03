@@ -23,7 +23,6 @@ server:
   http_addr: ":8083"
 
 auth:
-  # В проде только через env/secret manager.
   jwt_secret: "CHANGE_ME"
 
 external_apis:
@@ -38,6 +37,6 @@ external_apis:
     timeout_seconds: 10
 
 cache:
-  media_ttl_seconds: 86400      # 24 часа для метаданных
-  search_ttl_seconds: 3600      # 1 час для результатов поиска
+  media_ttl_seconds: 86400
+  search_ttl_seconds: 3600
 
