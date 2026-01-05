@@ -3,6 +3,7 @@
 *.log
 TZ.md
 ARCHITECTURE.md
+TECHNICAL_SPECIFICATION.md
 
 # IDE
 .vscode/
@@ -31,13 +32,11 @@ out/
 .env
 .env.*
 
-# Config files with secrets
-metadata_service/config.yaml
+*/config.yaml
 
 # Local DB / tools (если появятся)
 .tmp/
 
-# Вложенный эталонный репозиторий (не коммитим чужую историю)
 students/
 
 

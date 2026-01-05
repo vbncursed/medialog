@@ -1,0 +1,35 @@
+database:
+  host: "localhost"
+  port: 5432
+  username: "admin"
+  password: "admin"
+  name: "medialog"
+  ssl_mode: "disable"
+
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
+
+auth:
+  # JWT секрет для подписи токенов. В продакшене должен быть длинным случайным значением (минимум 32 символа)
+  # Рекомендуется использовать переменные окружения или secret manager
+  jwt_secret: "CHANGE_ME_IN_PRODUCTION"
+  # Время жизни access token в секундах (по умолчанию 1 день = 86400)
+  access_ttl_seconds: 86400
+  # Время жизни refresh token в секундах (по умолчанию 7 дней = 604800)
+  refresh_ttl_seconds: 604800
+  # Лимит запросов на вход в минуту (защита от брутфорс-атак)
+  rate_limit_login_per_minute: 2
+  # Лимит запросов на регистрацию в минуту
+  rate_limit_register_per_minute: 2
+  # Лимит запросов на обновление токенов в минуту
+  rate_limit_refresh_per_minute: 2
+
+server:
+  # Адрес для gRPC сервера
+  grpc_addr: ":50052"
+  # Адрес для HTTP/REST сервера (gRPC-Gateway)
+  http_addr: ":8081"
+

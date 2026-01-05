@@ -1,7 +1,7 @@
 go 1.25.4
 
 use (
-	./auth_service
+	./auth
 	./library_service
 	./metadata_service
 	./shared
